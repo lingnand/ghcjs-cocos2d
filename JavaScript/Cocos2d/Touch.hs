@@ -1,4 +1,3 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module JavaScript.Cocos2d.Touch where
 
 import GHCJS.Types
