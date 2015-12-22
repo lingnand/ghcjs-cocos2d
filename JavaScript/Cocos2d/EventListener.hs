@@ -9,6 +9,7 @@ import GHCJS.Foreign.Callback
 import JavaScript.Cocos2d.Touch
 import JavaScript.Cocos2d.Event
 import JavaScript.Cocos2d.Geometry
+import JavaScript.Cocos2d.Utils
 
 newtype TouchOneByOneEventListener = TouchOneByOneEventListener JSVal
 
@@ -20,25 +21,25 @@ foreign import javascript unsafe "$1.onTouchCancelled = $2" cc_setOnTouchCancell
 
 -- return an IO action that releases the callback
 setOnTouchBegan :: TouchOneByOneEventListener -> (Touch -> EventTouch -> IO ()) -> IO (IO ())
-setOnTouchBegan l h = do
-    cb <- syncCallback2 ContinueAsync $ \t e -> h (Touch t) (EventTouch e)
-    cc_setOnTouchBegan l cb
-    return $ releaseCallback cb
-
+setOnTouchBegan = setCallback2 cc_setOnTouchBegan 
 setOnTouchEnded :: TouchOneByOneEventListener -> (Touch -> EventTouch -> IO ()) -> IO (IO ())
-setOnTouchEnded l h = do
-    cb <- syncCallback2 ContinueAsync $ \t e -> h (Touch t) (EventTouch e)
-    cc_setOnTouchEnded l cb
-    return $ releaseCallback cb
-
+setOnTouchEnded = setCallback2 cc_setOnTouchEnded
 setOnTouchMoved :: TouchOneByOneEventListener -> (Touch -> EventTouch -> IO ()) -> IO (IO ())
-setOnTouchMoved l h = do
-    cb <- syncCallback2 ContinueAsync $ \t e -> h (Touch t) (EventTouch e)
-    cc_setOnTouchMoved l cb
-    return $ releaseCallback cb
+setOnTouchMoved = setCallback2 cc_setOnTouchMoved
 
-setOnTouchCancelled :: TouchOneByOneEventListener -> (V2 Double -> IO ()) -> IO (IO ())
-setOnTouchCancelled l h = do
-    cb <- syncCallback1 ContinueAsync $ h <=< pointToV2 . Point
-    cc_setOnTouchCancelled l cb
-    return $ releaseCallback cb
+newtype TouchAllAtOnceEventListener = TouchAllAtOnceEventListener JSVal
+
+-- setOnTouchCancelled :: TouchOneByOneEventListener -> (V2 Double -> IO ()) -> IO (IO ())
+-- setOnTouchCancelled l h = do
+--     cb <- syncCallback1 ContinueAsync $ h <=< pointToV2 . Point
+--     cc_setOnTouchCancelled l cb
+--     return $ releaseCallback cb
+--
+-- foreign import javascript unsafe "new cc._EventListenerTouchAllAtOnce()" createTouchAllAtOnceEventListener :: IO TouchAllAtOnceEventListener
+foreign import javascript unsafe "$1.onTouchesesBegan = $2" cc_setOnTouchesBegan :: TouchAllAtOnceEventListener -> Callback a -> IO ()
+-- foreign import javascript unsafe "$1.onTouchesesEnded = $2" cc_setOnTouchesEnded :: TouchAllAtOnceEventListener -> Callback a -> IO ()
+-- foreign import javascript unsafe "$1.onTouchesesMoved = $2" cc_setOnTouchesMoved :: TouchAllAtOnceEventListener -> Callback a -> IO ()
+-- foreign import javascript unsafe "$1.onTouchesesCancelled = $2" cc_setOnTouchesCancelled :: TouchAllAtOnceEventListener -> Callback a -> IO ()
+--
+setOnTouchesBegan :: TouchAllAtOnceEventListener -> ([Touch] -> EventTouch -> IO ()) -> IO (IO ())
+setOnTouchesBegan = setCallback2 cc_setOnTouchesBegan
