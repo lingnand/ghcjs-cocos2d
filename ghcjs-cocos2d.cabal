@@ -48,13 +48,15 @@ cabal-version:       >=1.10
 
 library
   -- Modules exported by the library.
-  exposed-modules:     JavaScript.Cocos2d.EventListener
+  exposed-modules:     JavaScript.Cocos2d.Types,
+                       JavaScript.Cocos2d.Layer,
+                       JavaScript.Cocos2d.EventListener
   
   -- Modules included in this library but not exported.
   -- other-modules:       
   
   -- LANGUAGE extensions used by modules in this package.
-  default-extensions:    GeneralizedNewtypeDeriving, JavaScriptFFI
+  default-extensions:    GeneralizedNewtypeDeriving, JavaScriptFFI, TemplateHaskell
   
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.8 && <4.9,
@@ -62,7 +64,8 @@ library
                        linear,
                        time,
                        aeson,
-                       text
+                       text,
+                       lens
   
   -- Directories containing source files.
   -- hs-source-dirs:      
