@@ -1,5 +1,6 @@
 module JavaScript.Cocos2d.Layer where
 
+import Data.Colour
 import Control.Monad
 import GHCJS.Types
 import GHCJS.Marshal
@@ -21,7 +22,7 @@ newtype LayerColor = LayerColor JSVal deriving (FromJSVal, ToJSVal)
 instance IsNode LayerColor where
 instance IsLayer LayerColor where
 
-createLayerColor :: Color -> Double -> Double -> IO LayerColor
+createLayerColor :: AlphaColour Double -> Double -> Double -> IO LayerColor
 createLayerColor c width height = toJSVal c >>= \v -> cc_createLayerColor v width height
 
 foreign import javascript unsafe "new cc.LayerColor($1, $2, $3)" cc_createLayerColor :: JSVal -> Double -> Double -> IO LayerColor

@@ -65,7 +65,8 @@ library
                        time,
                        aeson,
                        text,
-                       lens
+                       lens,
+                       colour
   
   -- Directories containing source files.
   -- hs-source-dirs:      

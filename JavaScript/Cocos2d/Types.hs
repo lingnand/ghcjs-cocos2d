@@ -6,6 +6,8 @@ import qualified Data.Aeson as A
 import qualified Data.JSString as JS
 import qualified Data.Text as T
 import Data.Word
+import Data.Colour as C
+import Data.Colour.SRGB
 import Linear
 import Control.Lens
 import Control.Applicative
@@ -67,15 +69,16 @@ instance FromJSVal Acceleration where
 instance ToJSVal Acceleration where
     toJSVal (Acceleration (V3 x y z) t) = cc_createAcceleration x y z =<< toJSVal t
 
--- Color <> cc.Color
-data Color = Color { _red   :: Word8
-                   , _green :: Word8
-                   , _blue  :: Word8
-                   , _alpha :: Word8 }
-makeLenses ''Color
+-- AlphaColour Double <> cc.Color
+instance FromJSVal (AlphaColour Double) where
+    fromJSVal v = do
+        a <- cc_getA v
+        c <- sRGB24 <$> cc_getR v <*> cc_getG v <*> cc_getB v
+        return . Just $ withOpacity c (fromIntegral a / 255)
 
-instance FromJSVal Color where
-    fromJSVal v = Just <$> (Color <$> cc_getR v <*> cc_getG v <*> cc_getB v <*> cc_getA v)
-
-instance ToJSVal Color where
-    toJSVal (Color r g b a) = cc_color r g b a
+instance ToJSVal (AlphaColour Double) where
+    toJSVal c = cc_color r g b (round $ a * 255)
+        where a = alphaChannel c
+              pureC | a > 0 = darken (recip a) (c `C.over` black)
+                    | otherwise = black
+              RGB r g b = toSRGB24 pureC
