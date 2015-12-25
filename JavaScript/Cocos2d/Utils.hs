@@ -1,9 +1,17 @@
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 module JavaScript.Cocos2d.Utils where
 
 import Control.Monad
 import GHCJS.Types
 import GHCJS.Marshal
 import GHCJS.Foreign.Callback
+
+convCallback :: (listener -> Callback (IO ()) -> IO ()) -> listener -> IO () -> IO (IO ())
+convCallback ffi l h = do
+        cb <- syncCallback ContinueAsync h
+        ffi l cb
+        return $ releaseCallback cb
 
 convCallback1 :: (FromJSVal a) => (listener -> Callback (JSVal -> IO ()) -> IO ()) -> listener -> (a -> IO ()) -> IO (IO ())
 convCallback1 ffi l h = do

@@ -1,3 +1,4 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module JavaScript.Cocos2d.Widget where
 
 import GHCJS.Types

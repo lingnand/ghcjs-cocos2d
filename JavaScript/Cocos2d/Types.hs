@@ -1,3 +1,5 @@
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE FlexibleInstances #-}
 module JavaScript.Cocos2d.Types where
 
@@ -12,6 +14,7 @@ import Linear
 import Control.Lens
 import Control.Applicative
 import GHCJS.Types
+import GHCJS.Foreign
 import GHCJS.Marshal
 
 ----- Helpers

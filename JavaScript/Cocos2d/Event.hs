@@ -1,3 +1,4 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module JavaScript.Cocos2d.Event where
 
 import GHCJS.Types

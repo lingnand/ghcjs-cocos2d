@@ -1,3 +1,6 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 module JavaScript.Cocos2d.EventListener where
 
 import Control.Monad
@@ -11,28 +14,28 @@ import JavaScript.Cocos2d.Types
 import JavaScript.Cocos2d.Widget
 import JavaScript.Cocos2d.Utils
 
-class (FromJSVal a, ToJSVal a) => IsEventListener a where
-    toEventListener :: a -> IO EventListener
-    toEventListener = fromJSValUnchecked <=< toJSVal
-    fromEventListener :: EventListener -> IO a
-    fromEventListener = fromJSValUnchecked <=< toJSVal
+class IsEventListener a where
+    toEventListener :: a -> EventListener
+    fromEventListener :: EventListener -> a
 
 newtype EventListener = EventListener JSVal deriving (FromJSVal, ToJSVal)
 instance IsEventListener EventListener where
-    toEventListener = pure
-    fromEventListener = pure
+    toEventListener = id
+    fromEventListener = id
 
 clone :: IsEventListener l => l -> IO l
-clone = fromEventListener <=< cc_clone <=< toEventListener
+clone = fmap fromEventListener . cc_clone . toEventListener
 
 isEnabled :: IsEventListener l => l -> IO Bool
-isEnabled = cc_isEnabled <=< toEventListener
+isEnabled = cc_isEnabled . toEventListener
 
 setEnabled :: IsEventListener l => l -> Bool -> IO ()
-setEnabled l e = flip cc_setEnabled e =<< toEventListener l
+setEnabled l e = cc_setEnabled (toEventListener l) e
 
 newtype TouchOneByOneEventListener = TouchOneByOneEventListener JSVal deriving (FromJSVal, ToJSVal)
 instance IsEventListener TouchOneByOneEventListener where
+    toEventListener (TouchOneByOneEventListener a) = EventListener a
+    fromEventListener (EventListener a) = TouchOneByOneEventListener a
 
 foreign import javascript unsafe "new cc._EventListenerTouchOneByOne()" createTouchOneByOneEventListener :: IO TouchOneByOneEventListener
 
@@ -47,6 +50,8 @@ setOnTouchCancelled = convCallback1 cc_setOnTouchCancelled
 
 newtype TouchAllAtOnceEventListener = TouchAllAtOnceEventListener JSVal deriving (FromJSVal, ToJSVal)
 instance IsEventListener TouchAllAtOnceEventListener where
+    toEventListener (TouchAllAtOnceEventListener a) = EventListener a
+    fromEventListener (EventListener a) = TouchAllAtOnceEventListener a
 
 foreign import javascript unsafe "new cc._EventListenerTouchAllAtOnce()" createTouchAllAtOnceEventListener :: IO TouchAllAtOnceEventListener
 
@@ -61,6 +66,8 @@ setOnTouchesCancelled = convCallback2 cc_setOnTouchesCancelled
 
 newtype MouseEventListener = MouseEventListener JSVal deriving (FromJSVal, ToJSVal)
 instance IsEventListener MouseEventListener where
+    toEventListener (MouseEventListener a) = EventListener a
+    fromEventListener (EventListener a) = MouseEventListener a
 
 foreign import javascript unsafe "new cc._EventListenerMouse()" createMouseEventListener :: IO MouseEventListener
 
@@ -75,6 +82,8 @@ setOnMouseScroll = convCallback1 cc_setOnMouseScroll
 
 newtype KeyboardEventListener = KeyboardEventListener JSVal deriving (FromJSVal, ToJSVal)
 instance IsEventListener KeyboardEventListener where
+    toEventListener (KeyboardEventListener a) = EventListener a
+    fromEventListener (EventListener a) = KeyboardEventListener a
 
 foreign import javascript unsafe "new cc._EventListenerKeyboard()" createKeyboardEventListener :: IO KeyboardEventListener
 
@@ -86,6 +95,8 @@ setOnKeyReleased = convCallback2 cc_setOnKeyReleased
 
 newtype AccelerationEventListener = AccelerationEventListener JSVal deriving (FromJSVal, ToJSVal)
 instance IsEventListener AccelerationEventListener where
+    toEventListener (AccelerationEventListener a) = EventListener a
+    fromEventListener (EventListener a) = AccelerationEventListener a
 
 foreign import javascript unsafe "new cc._EventListenerAcceleration()" createAccelerationEventListener :: IO AccelerationEventListener
 
@@ -94,6 +105,8 @@ setOnAccelerationEvent = convCallback2 cc_setOnAccelerationEvent
 
 newtype FocusEventListener = FocusEventListener JSVal deriving (FromJSVal, ToJSVal)
 instance IsEventListener FocusEventListener where
+    toEventListener (FocusEventListener a) = EventListener a
+    fromEventListener (EventListener a) = FocusEventListener a
 
 foreign import javascript unsafe "new cc._EventListenerFocus()" createFocusEventListener :: IO FocusEventListener
 
