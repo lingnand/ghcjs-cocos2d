@@ -5,6 +5,7 @@ import Data.Colour
 import Control.Monad
 import GHCJS.Types
 import GHCJS.Marshal
+import JavaScript.Cocos2d.Class
 import JavaScript.Cocos2d.Node
 import JavaScript.Cocos2d.Types
 
@@ -17,7 +18,8 @@ instance IsNode Layer where
 instance IsLayer Layer where
     toLayer = id
 
-foreign import javascript unsafe "new cc.Layer()" createLayer :: IO Layer
+createLayer :: Cocos2d m => m Layer
+createLayer = liftIO cc_createLayer
 
 newtype LayerColor = LayerColor JSVal deriving (FromJSVal, ToJSVal)
 instance IsNode LayerColor where
@@ -25,7 +27,8 @@ instance IsNode LayerColor where
 instance IsLayer LayerColor where
     toLayer (LayerColor v) = Layer v
 
-createLayerColor :: AlphaColour Double -> IO LayerColor
-createLayerColor = cc_createLayerColor <=< toJSVal
+createLayerColor :: Cocos2d m => AlphaColour Double -> m LayerColor
+createLayerColor = liftIO <$> (cc_createLayerColor <=< toJSVal)
 
+foreign import javascript unsafe "new cc.Layer()" cc_createLayer :: IO Layer
 foreign import javascript unsafe "new cc.LayerColor($1)" cc_createLayerColor :: JSVal -> IO LayerColor

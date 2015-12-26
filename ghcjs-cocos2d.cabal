@@ -48,7 +48,8 @@ cabal-version:       >=1.10
 
 library
   -- Modules exported by the library.
-  exposed-modules:     JavaScript.Cocos2d.Types,
+  exposed-modules:     JavaScript.Cocos2d,
+                       JavaScript.Cocos2d.Types,
                        JavaScript.Cocos2d.Layer,
                        JavaScript.Cocos2d.EventListener
   
@@ -61,6 +62,7 @@ library
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.8 && <4.9,
                        ghcjs-base,
+                       transformers,
                        linear,
                        time,
                        aeson,
