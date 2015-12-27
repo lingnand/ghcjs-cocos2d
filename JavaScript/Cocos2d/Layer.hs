@@ -26,7 +26,7 @@ instance IsNode LayerColor where
 instance IsLayer LayerColor where
     toLayer (LayerColor v) = Layer v
 
-createLayerColor :: Cocos2d m => AlphaColour Double -> m LayerColor
+createLayerColor :: Cocos2d m => Colour Double -> m LayerColor
 createLayerColor = liftIO <$> (cc_createLayerColor <=< toJSVal)
 
 foreign import javascript unsafe "new cc.Layer()" cc_createLayer :: IO Layer
