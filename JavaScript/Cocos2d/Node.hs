@@ -26,36 +26,36 @@ instance IsNode Node where
     toNode = id
 
 data NodeConfig
-   = NodeConfig { _nodeConfig_pos :: V2 Double
-                , _nodeConfig_width :: Double
-                , _nodeConfig_height :: Double
-                , _nodeConfig_anchor :: V2 Double
-                , _nodeConfig_skew :: V2 Double
-                , _nodeConfig_zIndex :: Int
-                , _nodeConfig_rotation :: V2 Double
-                , _nodeConfig_scale :: V2 Double
-                , _nodeConfig_visible :: Bool
-                , _nodeConfig_color :: Colour Double
-                , _nodeConfig_cascadeColor :: Bool
-                , _nodeConfig_opacity :: Double -- | 0.0 - 1.0
-                , _nodeConfig_cascadeOpacity :: Bool
+   = NodeConfig { _position :: V2 Double
+                , _width :: Double
+                , _height :: Double
+                , _anchor :: V2 Double
+                , _skew :: V2 Double
+                , _zIndex :: Int
+                , _rotation :: V2 Double
+                , _scale :: V2 Double
+                , _visible :: Bool
+                , _color :: Colour Double
+                , _cascadeColor :: Bool
+                , _opacity :: Double -- | 0.0 - 1.0
+                , _cascadeOpacity :: Bool
                 } deriving (Show)
 makeLenses ''NodeConfig
 
 instance Default NodeConfig where
-    def = NodeConfig { _nodeConfig_pos = zero
-                     , _nodeConfig_width = 0.0
-                     , _nodeConfig_height = 0.0
-                     , _nodeConfig_anchor = zero
-                     , _nodeConfig_skew = zero
-                     , _nodeConfig_zIndex = 0
-                     , _nodeConfig_rotation = zero
-                     , _nodeConfig_scale = pure 1.0
-                     , _nodeConfig_visible = False
-                     , _nodeConfig_color = white
-                     , _nodeConfig_cascadeColor = False
-                     , _nodeConfig_opacity = 1.0 -- | 0.0 - 1.0
-                     , _nodeConfig_cascadeOpacity = False
+    def = NodeConfig { _position = zero
+                     , _width = 0.0
+                     , _height = 0.0
+                     , _anchor = zero
+                     , _skew = zero
+                     , _zIndex = 0
+                     , _rotation = zero
+                     , _scale = pure 1.0
+                     , _visible = False
+                     , _color = white
+                     , _cascadeColor = False
+                     , _opacity = 1.0 -- | 0.0 - 1.0
+                     , _cascadeOpacity = False
                      }
 
 createNode :: Cocos2d m => m Node
