@@ -62,11 +62,11 @@ createNode :: Cocos2d m => m Node
 createNode = liftIO cc_createNode
 
 createNodeWithConfig :: Cocos2d m => NodeConfig -> m Node
-createNodeWithConfig c = createNode >>= \n -> setConfig n c >> return n
+createNodeWithConfig c = createNode >>= \n -> setNodeConfig n c >> return n
 
 -- we are not using attr() here because it can be quite inefficient
-setConfig :: (Cocos2d m, IsNode n) => n -> NodeConfig -> m ()
-setConfig n (NodeConfig (V2 px py) width height (V2 ax ay) (V2 skx sky) zIndex
+setNodeConfig :: (Cocos2d m, IsNode n) => n -> NodeConfig -> m ()
+setNodeConfig n (NodeConfig (V2 px py) width height (V2 ax ay) (V2 skx sky) zIndex
           (V2 rx ry) (V2 slx sly) visible color cascadeColor opacity cascadeOpacity) = liftIO $ do
     let n' = toNode n
     cc_setX n' px >> cc_setY n' py
@@ -82,17 +82,16 @@ setConfig n (NodeConfig (V2 px py) width height (V2 ax ay) (V2 skx sky) zIndex
     cc_setOpacity n' (round $ opacity * 255)
     cc_setCascadeOpacity n' cascadeOpacity
 
-getConfig :: (Cocos2d m, IsNode n) => n -> m NodeConfig
-getConfig n = liftIO $ NodeConfig <$> (V2 <$> cc_getX n' <*> cc_getY n') <*> cc_getWidth n' <*> cc_getHeight n'
+getNodeConfig :: (Cocos2d m, IsNode n) => n -> m NodeConfig
+getNodeConfig n = liftIO $ NodeConfig <$> (V2 <$> cc_getX n' <*> cc_getY n') <*> cc_getWidth n' <*> cc_getHeight n'
     <*> (V2 <$> cc_getAnchorX n' <*> cc_getAnchorY n') <*> (V2 <$> cc_getSkewX n' <*> cc_getSkewY n')
     <*> cc_getZIndex n' <*> (V2 <$> cc_getRotationX n' <*> cc_getRotationY n') <*> (V2 <$> cc_getScaleX n' <*> cc_getScaleY n')
     <*> cc_getVisible n' <*> (cc_getColor n' >>= fromJSValUnchecked) <*> cc_getCascadeColor n'
     <*> ((/255) . fromIntegral <$> cc_getOpacity n') <*> cc_getCascadeOpacity n'
         where n' = toNode n
 
-modifyConfig :: (Cocos2d m, IsNode n) => n -> (NodeConfig -> NodeConfig) -> m ()
-modifyConfig n f = getConfig n' >>= setConfig n' . f
-        where n' = toNode n
+modifyNodeConfig :: (Cocos2d m, IsNode n) => n -> (NodeConfig -> NodeConfig) -> m ()
+modifyNodeConfig n f = getNodeConfig n >>= setNodeConfig n . f
 
 setOnEnter :: (Cocos2d m, IsNode n) => n -> IO () -> m (IO ())
 setOnEnter = convCallback . cc_setOnEnter . toNode
