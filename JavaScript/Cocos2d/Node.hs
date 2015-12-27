@@ -1,11 +1,9 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
 module JavaScript.Cocos2d.Node where
 
 import Control.Monad
 import GHCJS.Types
-import GHCJS.Marshal
 import GHCJS.Marshal.Internal
 import GHCJS.Foreign.Callback
 import GHCJS.Foreign.Internal
@@ -16,7 +14,7 @@ import JavaScript.Cocos2d.Types
 class IsNode a where
     toNode :: a -> Node
 
-newtype Node = Node JSVal deriving (FromJSVal, ToJSVal)
+newtype Node = Node JSVal
 instance IsNode Node where
     toNode = id
 
@@ -24,7 +22,7 @@ createNode :: Cocos2d m => m Node
 createNode = liftIO cc_createNode
 
 setOnEnter :: (Cocos2d m, IsNode n) => n -> IO () -> m (IO ())
-setOnEnter n = convCallback cc_setOnEnter (toNode n)
+setOnEnter = convCallback . cc_setOnEnter . toNode
 
 addChild :: (Cocos2d m, IsNode n, IsNode c) => n -> c -> m ()
 addChild n c = liftIO $ cc_addChild (toNode n) (toNode c) jsUndefined

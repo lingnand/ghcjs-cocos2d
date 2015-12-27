@@ -1,5 +1,5 @@
+{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE FlexibleInstances #-}
 module JavaScript.Cocos2d.Types where
 
@@ -13,6 +13,9 @@ import Data.Colour.SRGB
 import Linear
 import Control.Lens
 import Control.Applicative
+import Control.Monad
+import Control.Monad.Trans.Class
+import Control.Monad.Trans.Maybe
 import GHCJS.Types
 import GHCJS.Foreign
 import GHCJS.Marshal
@@ -85,3 +88,12 @@ instance ToJSVal (AlphaColour Double) where
               pureC | a > 0 = darken (recip a) (c `C.over` black)
                     | otherwise = black
               RGB r g b = toSRGB24 pureC
+
+-- convert a JSVal from an Enum, Bounded instance by trying values one by one
+enumFromJSVal :: (Enum a, Bounded a, ToJSVal a) => JSVal -> IO (Maybe a)
+enumFromJSVal v = runMaybeT . msum . flip fmap [minBound .. maxBound] $ \x -> do
+        xv <- lift $ toJSVal x
+        guard (js_eq v xv)
+        return x
+
+foreign import javascript unsafe "$1===$2" js_eq :: JSVal -> JSVal -> Bool

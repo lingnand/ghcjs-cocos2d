@@ -1,4 +1,3 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module JavaScript.Cocos2d.Layer where
 
 import Data.Colour
@@ -12,7 +11,7 @@ import JavaScript.Cocos2d.Types
 class IsNode a => IsLayer a where
     toLayer :: a -> Layer
 
-newtype Layer = Layer JSVal deriving (FromJSVal, ToJSVal)
+newtype Layer = Layer JSVal
 instance IsNode Layer where
     toNode (Layer v) = Node v
 instance IsLayer Layer where
@@ -21,7 +20,7 @@ instance IsLayer Layer where
 createLayer :: Cocos2d m => m Layer
 createLayer = liftIO cc_createLayer
 
-newtype LayerColor = LayerColor JSVal deriving (FromJSVal, ToJSVal)
+newtype LayerColor = LayerColor JSVal
 instance IsNode LayerColor where
     toNode (LayerColor v) = Node v
 instance IsLayer LayerColor where

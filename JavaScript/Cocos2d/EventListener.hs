@@ -1,4 +1,3 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
 module JavaScript.Cocos2d.EventListener where
@@ -13,13 +12,14 @@ import JavaScript.Cocos2d.Touch
 import JavaScript.Cocos2d.Event
 import JavaScript.Cocos2d.Types
 import JavaScript.Cocos2d.Widget
+import JavaScript.Cocos2d.Node
 import JavaScript.Cocos2d.Utils
 
 class IsEventListener a where
     toEventListener :: a -> EventListener
     fromEventListener :: EventListener -> a
 
-newtype EventListener = EventListener JSVal deriving (FromJSVal, ToJSVal)
+newtype EventListener = EventListener JSVal
 instance IsEventListener EventListener where
     toEventListener = id
     fromEventListener = id
@@ -33,7 +33,13 @@ isEnabled = liftIO . cc_isEnabled . toEventListener
 setEnabled :: (IsEventListener l, Cocos2d m) => l -> Bool -> m ()
 setEnabled l e = liftIO $ cc_setEnabled (toEventListener l) e
 
-newtype TouchOneByOneEventListener = TouchOneByOneEventListener JSVal deriving (FromJSVal, ToJSVal)
+addListener :: (Cocos2d m, IsNode n, IsEventListener l) => n -> l -> m ()
+addListener n l = liftIO $ cc_addListener (toNode n) (toEventListener l)
+
+removeListener :: (Cocos2d m, IsEventListener l) => l -> m ()
+removeListener l = liftIO $ cc_removeListener (toEventListener l)
+
+newtype TouchOneByOneEventListener = TouchOneByOneEventListener JSVal
 instance IsEventListener TouchOneByOneEventListener where
     toEventListener (TouchOneByOneEventListener a) = EventListener a
     fromEventListener (EventListener a) = TouchOneByOneEventListener a
@@ -41,15 +47,15 @@ instance IsEventListener TouchOneByOneEventListener where
 createTouchOneByOneEventListener :: Cocos2d m => m TouchOneByOneEventListener
 createTouchOneByOneEventListener = liftIO cc_createTouchOneByOneEventListener
 setOnTouchBegan :: Cocos2d m => TouchOneByOneEventListener -> (Touch -> TouchEvent -> IO ()) -> m (IO ())
-setOnTouchBegan = convCallback2 cc_setOnTouchBegan
+setOnTouchBegan = convCallback2 . cc_setOnTouchBegan
 setOnTouchEnded :: Cocos2d m => TouchOneByOneEventListener -> (Touch -> TouchEvent -> IO ()) -> m (IO ())
-setOnTouchEnded = convCallback2 cc_setOnTouchEnded
+setOnTouchEnded = convCallback2 . cc_setOnTouchEnded
 setOnTouchMoved :: Cocos2d m => TouchOneByOneEventListener -> (Touch -> TouchEvent -> IO ()) -> m (IO ())
-setOnTouchMoved = convCallback2 cc_setOnTouchMoved
+setOnTouchMoved = convCallback2 . cc_setOnTouchMoved
 setOnTouchCancelled :: Cocos2d m => TouchOneByOneEventListener -> (V2 Double -> IO ()) -> m (IO ())
-setOnTouchCancelled = convCallback1 cc_setOnTouchCancelled
+setOnTouchCancelled = convCallback1 . cc_setOnTouchCancelled
 
-newtype TouchAllAtOnceEventListener = TouchAllAtOnceEventListener JSVal deriving (FromJSVal, ToJSVal)
+newtype TouchAllAtOnceEventListener = TouchAllAtOnceEventListener JSVal
 instance IsEventListener TouchAllAtOnceEventListener where
     toEventListener (TouchAllAtOnceEventListener a) = EventListener a
     fromEventListener (EventListener a) = TouchAllAtOnceEventListener a
@@ -57,15 +63,15 @@ instance IsEventListener TouchAllAtOnceEventListener where
 createTouchAllAtOnceEventListener :: Cocos2d m => m TouchAllAtOnceEventListener
 createTouchAllAtOnceEventListener = liftIO cc_createTouchAllAtOnceEventListener
 setOnTouchesBegan :: Cocos2d m => TouchAllAtOnceEventListener -> ([Touch] -> TouchEvent -> IO ()) -> m (IO ())
-setOnTouchesBegan = convCallback2 cc_setOnTouchesBegan
+setOnTouchesBegan = convCallback2 . cc_setOnTouchesBegan
 setOnTouchesEnded :: Cocos2d m => TouchAllAtOnceEventListener -> ([Touch] -> TouchEvent -> IO ()) -> m (IO ())
-setOnTouchesEnded = convCallback2 cc_setOnTouchesEnded
+setOnTouchesEnded = convCallback2 . cc_setOnTouchesEnded
 setOnTouchesMoved :: Cocos2d m => TouchAllAtOnceEventListener -> ([Touch] -> TouchEvent -> IO ()) -> m (IO ())
-setOnTouchesMoved = convCallback2 cc_setOnTouchesMoved
+setOnTouchesMoved = convCallback2 . cc_setOnTouchesMoved
 setOnTouchesCancelled :: Cocos2d m => TouchAllAtOnceEventListener -> ([Touch] -> TouchEvent -> IO ()) -> m (IO ())
-setOnTouchesCancelled = convCallback2 cc_setOnTouchesCancelled
+setOnTouchesCancelled = convCallback2 . cc_setOnTouchesCancelled
 
-newtype MouseEventListener = MouseEventListener JSVal deriving (FromJSVal, ToJSVal)
+newtype MouseEventListener = MouseEventListener JSVal
 instance IsEventListener MouseEventListener where
     toEventListener (MouseEventListener a) = EventListener a
     fromEventListener (EventListener a) = MouseEventListener a
@@ -73,15 +79,15 @@ instance IsEventListener MouseEventListener where
 createMouseEventListener :: Cocos2d m => m MouseEventListener
 createMouseEventListener = liftIO cc_createMouseEventListener
 setOnMouseDown :: Cocos2d m => MouseEventListener -> (MouseEvent -> IO ()) -> m (IO ())
-setOnMouseDown = convCallback1 cc_setOnMouseDown
+setOnMouseDown = convCallback1 . cc_setOnMouseDown
 setOnMouseUp :: Cocos2d m => MouseEventListener -> (MouseEvent -> IO ()) -> m (IO ())
-setOnMouseUp = convCallback1 cc_setOnMouseUp
+setOnMouseUp = convCallback1 . cc_setOnMouseUp
 setOnMouseMove :: Cocos2d m => MouseEventListener -> (MouseEvent -> IO ()) -> m (IO ())
-setOnMouseMove = convCallback1 cc_setOnMouseMove
+setOnMouseMove = convCallback1 . cc_setOnMouseMove
 setOnMouseScroll :: Cocos2d m => MouseEventListener -> (MouseEvent -> IO ()) -> m (IO ())
-setOnMouseScroll = convCallback1 cc_setOnMouseScroll
+setOnMouseScroll = convCallback1 . cc_setOnMouseScroll
 
-newtype KeyboardEventListener = KeyboardEventListener JSVal deriving (FromJSVal, ToJSVal)
+newtype KeyboardEventListener = KeyboardEventListener JSVal
 instance IsEventListener KeyboardEventListener where
     toEventListener (KeyboardEventListener a) = EventListener a
     fromEventListener (EventListener a) = KeyboardEventListener a
@@ -90,11 +96,11 @@ createKeyboardEventListener :: Cocos2d m => m KeyboardEventListener
 createKeyboardEventListener = liftIO cc_createKeyboardEventListener
 -- pass along the keycode in an Int
 setOnKeyPressed :: Cocos2d m => KeyboardEventListener -> (Int -> KeyboardEvent -> IO ()) -> m (IO ())
-setOnKeyPressed = convCallback2 cc_setOnKeyPressed
+setOnKeyPressed = convCallback2 . cc_setOnKeyPressed
 setOnKeyReleased :: Cocos2d m => KeyboardEventListener -> (Int -> KeyboardEvent -> IO ()) -> m (IO ())
-setOnKeyReleased = convCallback2 cc_setOnKeyReleased
+setOnKeyReleased = convCallback2 . cc_setOnKeyReleased
 
-newtype AccelerationEventListener = AccelerationEventListener JSVal deriving (FromJSVal, ToJSVal)
+newtype AccelerationEventListener = AccelerationEventListener JSVal
 instance IsEventListener AccelerationEventListener where
     toEventListener (AccelerationEventListener a) = EventListener a
     fromEventListener (EventListener a) = AccelerationEventListener a
@@ -102,9 +108,9 @@ instance IsEventListener AccelerationEventListener where
 createAccelerationEventListener :: Cocos2d m => m AccelerationEventListener
 createAccelerationEventListener = liftIO cc_createAccelerationEventListener
 setOnAccelerationEvent :: Cocos2d m => AccelerationEventListener -> (Acceleration-> AccelerationEvent -> IO ()) -> m (IO ())
-setOnAccelerationEvent = convCallback2 cc_setOnAccelerationEvent
+setOnAccelerationEvent = convCallback2 . cc_setOnAccelerationEvent
 
-newtype FocusEventListener = FocusEventListener JSVal deriving (FromJSVal, ToJSVal)
+newtype FocusEventListener = FocusEventListener JSVal
 instance IsEventListener FocusEventListener where
     toEventListener (FocusEventListener a) = EventListener a
     fromEventListener (EventListener a) = FocusEventListener a
@@ -113,12 +119,14 @@ createFocusEventListener :: Cocos2d m => m FocusEventListener
 createFocusEventListener = liftIO cc_createFocusEventListener
 -- widgetLoseFocus -> widgetGetFocus -> action
 setOnFocusChanged :: Cocos2d m => FocusEventListener -> (Widget -> Widget -> IO ()) -> m (IO ())
-setOnFocusChanged = convCallback2 cc_setOnFocusChanged
+setOnFocusChanged = convCallback2 . cc_setOnFocusChanged
 
 -- internal foreign import
 foreign import javascript unsafe "$1.clone()" cc_clone :: EventListener -> IO EventListener
 foreign import javascript unsafe "$1.isEnabled()" cc_isEnabled :: EventListener -> IO Bool
 foreign import javascript unsafe "$1.setEnabled($2)" cc_setEnabled :: EventListener -> Bool -> IO ()
+foreign import javascript unsafe "cc.eventManager.addListener($2, $1)" cc_addListener :: Node -> EventListener -> IO ()
+foreign import javascript unsafe "cc.eventManager.removeListener($1)" cc_removeListener :: EventListener -> IO ()
 foreign import javascript unsafe "new cc._EventListenerTouchOneByOne()" cc_createTouchOneByOneEventListener :: IO TouchOneByOneEventListener
 foreign import javascript unsafe "$1.onTouchBegan = $2" cc_setOnTouchBegan :: TouchOneByOneEventListener -> Callback a -> IO ()
 foreign import javascript unsafe "$1.onTouchEnded = $2" cc_setOnTouchEnded :: TouchOneByOneEventListener -> Callback a -> IO ()
