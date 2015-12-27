@@ -16,7 +16,7 @@ import JavaScript.Cocos2d.Director
 import JavaScript.Cocos2d.Game
 import JavaScript.Cocos2d.EGLView
 
-getSys :: Cocos2d m => m Sys 
+getSys :: Cocos2d m => m Sys
 getSys = liftIO cc_getSys
 
 getDirector :: Cocos2d m => m Director

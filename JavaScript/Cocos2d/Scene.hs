@@ -17,7 +17,7 @@ instance IsScene Scene where
     toScene = id
 
 createScene :: Cocos2d m => m Scene
-createScene = liftIO cc_createScene 
+createScene = liftIO cc_createScene
 
 newtype LoaderScene = LoaderScene JSVal
 instance IsNode LoaderScene where

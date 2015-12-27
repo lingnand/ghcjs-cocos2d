@@ -1,7 +1,10 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE FlexibleInstances #-}
-module JavaScript.Cocos2d.Types where
+module JavaScript.Cocos2d.Types (
+    Acceleration(..),
+    enumFromJSVal
+) where
 
 import Data.Time
 import qualified Data.Aeson as A
@@ -29,7 +32,7 @@ foreign import javascript unsafe "$1.toISOString()" date_toISOString :: JSVal ->
 -- Point
 foreign import javascript unsafe "$1.x" cc_getX :: JSVal -> IO Double
 foreign import javascript unsafe "$1.y" cc_getY :: JSVal -> IO Double
-foreign import javascript unsafe "cc.p($1, $2)" cc_p :: Double -> Double -> IO JSVal 
+foreign import javascript unsafe "cc.p($1, $2)" cc_p :: Double -> Double -> IO JSVal
 -- Acceleration
 foreign import javascript unsafe "$1.z" cc_getZ :: JSVal -> IO Double
 foreign import javascript unsafe "$1.timestamp" cc_getTimestamp :: JSVal -> IO JSVal
@@ -68,18 +71,25 @@ makeLenses ''Acceleration
 
 instance FromJSVal Acceleration where
     fromJSVal v = do
-        vec <- V3 <$> cc_getX v <*> cc_getY v <*> cc_getZ v 
+        vec <- V3 <$> cc_getX v <*> cc_getY v <*> cc_getZ v
         t <- fromJSVal =<< cc_getTimestamp v
         return $ Acceleration vec <$> t
 
 instance ToJSVal Acceleration where
     toJSVal (Acceleration (V3 x y z) t) = cc_createAcceleration x y z =<< toJSVal t
 
--- AlphaColour Double <> cc.Color
+-- Colour Double/AlphaColour Double <> cc.Color
+instance FromJSVal (Colour Double) where
+    fromJSVal v = Just <$> (sRGB24 <$> cc_getR v <*> cc_getG v <*> cc_getB v)
+
+instance ToJSVal (Colour Double) where
+    toJSVal c = cc_color r g b 255
+        where RGB r g b = toSRGB24 c
+
 instance FromJSVal (AlphaColour Double) where
     fromJSVal v = do
         a <- cc_getA v
-        c <- sRGB24 <$> cc_getR v <*> cc_getG v <*> cc_getB v
+        Just c <- fromJSVal v
         return . Just $ withOpacity c (fromIntegral a / 255)
 
 instance ToJSVal (AlphaColour Double) where

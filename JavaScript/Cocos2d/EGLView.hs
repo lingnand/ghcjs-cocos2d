@@ -6,7 +6,7 @@ import JavaScript.Cocos2d.Class
 import JavaScript.Cocos2d.Types
 
 data ResolutionPolicy = ExactFit | NoBorder | ShowAll | FixedHeight | FixedWidth | Unknown
-        deriving (Bounded, Enum, Show) 
+        deriving (Bounded, Enum, Show)
 
 instance ToJSVal ResolutionPolicy where
         toJSVal ExactFit = cc_ResolutionPolicy_EXACT_FIT

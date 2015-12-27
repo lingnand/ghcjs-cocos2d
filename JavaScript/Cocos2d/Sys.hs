@@ -10,7 +10,7 @@ import JavaScript.Cocos2d.Types
 newtype Sys = Sys JSVal
 
 data OS = IOS | Android | Windows | Marmalade | Linux | Bada | Blackberry | OSX | WP8 | WinRT | Unknown
-        deriving (Bounded, Enum, Show) 
+        deriving (Bounded, Enum, Show)
 
 instance ToJSVal OS where
     toJSVal IOS = cc_OS_IOS
