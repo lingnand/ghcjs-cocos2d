@@ -15,12 +15,10 @@ import Data.Colour as C
 import Data.Colour.SRGB
 import Linear
 import Control.Lens
-import Control.Applicative
 import Control.Monad
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Maybe
 import GHCJS.Types
-import GHCJS.Foreign
 import GHCJS.Marshal
 
 ----- Helpers

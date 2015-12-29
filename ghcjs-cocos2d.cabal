@@ -53,7 +53,6 @@ library
                        JavaScript.Cocos2d.Types,
                        JavaScript.Cocos2d.EGLView
                        JavaScript.Cocos2d.Director
-                       JavaScript.Cocos2d.Game
                        JavaScript.Cocos2d.Sys
                        JavaScript.Cocos2d.EventListener
                        JavaScript.Cocos2d.Node,
@@ -62,6 +61,7 @@ library
   
   -- Modules included in this library but not exported.
   -- other-modules:       
+  ghc-options:         -Wall -O2
   
   -- LANGUAGE extensions used by modules in this package.
   -- default-extensions:    

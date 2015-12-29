@@ -6,7 +6,6 @@ import GHCJS.Types
 import GHCJS.Marshal
 import JavaScript.Cocos2d.Class
 import JavaScript.Cocos2d.Node
-import JavaScript.Cocos2d.Types
 
 class IsNode a => IsLayer a where
     toLayer :: a -> Layer

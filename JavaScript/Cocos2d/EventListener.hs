@@ -2,10 +2,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 module JavaScript.Cocos2d.EventListener where
 
-import Control.Monad
 import Linear
 import GHCJS.Types
-import GHCJS.Marshal
 import GHCJS.Foreign.Callback
 import JavaScript.Cocos2d.Class
 import JavaScript.Cocos2d.Touch

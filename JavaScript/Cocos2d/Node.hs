@@ -8,15 +8,13 @@ import Data.Colour
 import Data.Colour.Names
 import Data.Default
 import Linear
-import Control.Monad
 import Control.Lens
 import GHCJS.Types
 import GHCJS.Marshal.Internal
 import GHCJS.Foreign.Callback
-import GHCJS.Foreign.Internal
 import JavaScript.Cocos2d.Class
+import JavaScript.Cocos2d.Types()
 import JavaScript.Cocos2d.Utils
-import JavaScript.Cocos2d.Types
 
 class IsNode a where
     toNode :: a -> Node
@@ -97,14 +95,15 @@ setOnEnter :: (Cocos2d m, IsNode n) => n -> IO () -> m (IO ())
 setOnEnter = convCallback . cc_setOnEnter . toNode
 
 addChild :: (Cocos2d m, IsNode n, IsNode c) => n -> c -> m ()
-addChild n c = liftIO $ cc_addChild (toNode n) (toNode c) jsUndefined
+addChild n c = liftIO $ cc_addChild (toNode n) (toNode c)
 
 addChild' :: (Cocos2d m, IsNode n, IsNode c) => n -> c -> Int -> m ()
-addChild' n c localZOrder = liftIO $ cc_addChild (toNode n) (toNode c) (pToJSVal localZOrder)
+addChild' n c localZOrder = liftIO $ cc_addChild' (toNode n) (toNode c) localZOrder
 
 foreign import javascript unsafe "new cc.Node()"  cc_createNode :: IO Node
 foreign import javascript unsafe "$1.onEnter = function() { cc.Node.prototype.onEnter.call(this); $2(); }"  cc_setOnEnter :: Node -> Callback a -> IO ()
-foreign import javascript unsafe "$1.addChild($2, $3)" cc_addChild :: Node -> Node -> JSVal -> IO ()
+foreign import javascript unsafe "$1.addChild($2)" cc_addChild :: Node -> Node -> IO ()
+foreign import javascript unsafe "$1.addChild($2, $3)" cc_addChild' :: Node -> Node -> Int -> IO ()
 foreign import javascript unsafe "if ($1.x !== $2) {$1.x = $2}" cc_setX :: Node -> Double -> IO ()
 foreign import javascript unsafe "if ($1.y !== $2) {$1.y = $2}" cc_setY :: Node -> Double -> IO ()
 foreign import javascript unsafe "if ($1.width !== $2) {$1.width = $2}" cc_setWidth :: Node -> Double -> IO ()
