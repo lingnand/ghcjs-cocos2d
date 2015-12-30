@@ -1,14 +1,10 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
 module JavaScript.Cocos2d.Node where
 
+import Control.Monad
 import Data.Word
 import Data.Colour
-import Data.Colour.Names
-import Data.Default
-import Linear
-import Control.Lens
 import GHCJS.Types
 import GHCJS.Marshal.Internal
 import GHCJS.Foreign.Callback
@@ -22,72 +18,7 @@ newtype Node = Node JSVal
 instance IsNode Node where
     toNode = id
 
-data NodeConfig
-   = NodeConfig { _position :: V2 Double
-                , _width :: Double
-                , _height :: Double
-                , _anchor :: V2 Double
-                , _skew :: V2 Double
-                , _zIndex :: Int
-                , _rotation :: V2 Double
-                , _scale :: V2 Double
-                , _visible :: Bool
-                , _color :: Colour Double
-                , _cascadeColor :: Bool
-                , _opacity :: Double -- | 0.0 - 1.0
-                , _cascadeOpacity :: Bool
-                } deriving (Show)
-makeLenses ''NodeConfig
-
-instance Default NodeConfig where
-    def = NodeConfig { _position = zero
-                     , _width = 0.0
-                     , _height = 0.0
-                     , _anchor = zero
-                     , _skew = zero
-                     , _zIndex = 0
-                     , _rotation = zero
-                     , _scale = pure 1.0
-                     , _visible = False
-                     , _color = white
-                     , _cascadeColor = False
-                     , _opacity = 1.0 -- | 0.0 - 1.0
-                     , _cascadeOpacity = False
-                     }
-
 foreign import javascript unsafe "new cc.Node()"  createNode :: IO Node
-
-createNodeWithConfig :: NodeConfig -> IO Node
-createNodeWithConfig c = createNode >>= \n -> setNodeConfig n c >> return n
-
--- we are not using attr() here because it can be quite inefficient
-setNodeConfig :: IsNode n => n -> NodeConfig -> IO ()
-setNodeConfig n (NodeConfig (V2 px py) width height (V2 ax ay) (V2 skx sky) zIndex
-          (V2 rx ry) (V2 slx sly) visible color cascadeColor opacity cascadeOpacity) = do
-    let n' = toNode n
-    cc_setX n' px >> cc_setY n' py
-    cc_setWidth n' width >> cc_setHeight n' height
-    cc_setAnchorX n' ax >> cc_setAnchorY n' ay
-    cc_setSkewX n' skx >> cc_setSkewY n' sky
-    cc_setZIndex n' zIndex
-    cc_setRotationX n' rx >> cc_setRotationY n' ry
-    cc_setScaleX n' slx >> cc_setScaleY n' sly
-    cc_setVisible n' visible
-    cc_setColor n' =<< toJSVal color
-    cc_setCascadeColor n' cascadeColor
-    cc_setOpacity n' (round $ opacity * 255)
-    cc_setCascadeOpacity n' cascadeOpacity
-
-getNodeConfig :: IsNode n => n -> IO NodeConfig
-getNodeConfig n = NodeConfig <$> (V2 <$> cc_getX n' <*> cc_getY n') <*> cc_getWidth n' <*> cc_getHeight n'
-    <*> (V2 <$> cc_getAnchorX n' <*> cc_getAnchorY n') <*> (V2 <$> cc_getSkewX n' <*> cc_getSkewY n')
-    <*> cc_getZIndex n' <*> (V2 <$> cc_getRotationX n' <*> cc_getRotationY n') <*> (V2 <$> cc_getScaleX n' <*> cc_getScaleY n')
-    <*> cc_getVisible n' <*> (cc_getColor n' >>= fromJSValUnchecked) <*> cc_getCascadeColor n'
-    <*> ((/255) . fromIntegral <$> cc_getOpacity n') <*> cc_getCascadeOpacity n'
-        where n' = toNode n
-
-modifyNodeConfig :: IsNode n => n -> (NodeConfig -> NodeConfig) -> IO ()
-modifyNodeConfig n f = getNodeConfig n >>= setNodeConfig n . f
 
 setOnEnter :: IsNode n => n -> IO () -> IO (IO ())
 setOnEnter = convCallback . cc_setOnEnter . toNode
@@ -97,6 +28,114 @@ addChild n c = cc_addChild (toNode n) (toNode c)
 
 addChild' :: (IsNode n, IsNode c) => n -> c -> Int -> IO ()
 addChild' n c localZOrder = cc_addChild' (toNode n) (toNode c) localZOrder
+
+setX :: IsNode n => n -> Double -> IO ()
+setX = cc_setX . toNode
+
+setY :: IsNode n => n -> Double -> IO ()
+setY = cc_setY . toNode
+
+setWidth :: IsNode n => n -> Double -> IO ()
+setWidth = cc_setWidth . toNode
+
+setHeight :: IsNode n => n -> Double -> IO ()
+setHeight = cc_setHeight . toNode
+
+setAnchorX :: IsNode n => n -> Double -> IO ()
+setAnchorX = cc_setAnchorX . toNode
+
+setAnchorY :: IsNode n => n -> Double -> IO ()
+setAnchorY = cc_setAnchorY . toNode
+
+setSkewX :: IsNode n => n -> Double -> IO ()
+setSkewX = cc_setSkewX . toNode
+
+setSkewY :: IsNode n => n -> Double -> IO ()
+setSkewY = cc_setSkewY . toNode
+
+setZIndex :: IsNode n => n -> Int -> IO ()
+setZIndex = cc_setZIndex . toNode
+
+setRotationX :: IsNode n => n -> Double -> IO ()
+setRotationX = cc_setRotationX . toNode
+
+setRotationY :: IsNode n => n -> Double -> IO ()
+setRotationY = cc_setRotationY . toNode
+
+setScaleX :: IsNode n => n -> Double -> IO ()
+setScaleX = cc_setScaleX . toNode
+
+setScaleY :: IsNode n => n -> Double -> IO ()
+setScaleY = cc_setScaleY . toNode
+
+setVisible :: IsNode n => n -> Bool -> IO ()
+setVisible = cc_setVisible . toNode
+
+setColor :: IsNode n => n -> Colour Double -> IO ()
+setColor n = cc_setColor (toNode n) <=< toJSVal
+
+setCascadeColor :: IsNode n => n -> Bool -> IO ()
+setCascadeColor = cc_setCascadeColor . toNode
+
+setOpacity :: IsNode n => n -> Double -> IO ()
+setOpacity n o = cc_setOpacity (toNode n) (round $ o * 255)
+
+setCascadeOpacity :: IsNode n => n -> Bool -> IO ()
+setCascadeOpacity = cc_setCascadeOpacity . toNode
+
+getX :: IsNode n => n -> IO Double
+getX = cc_getX . toNode
+
+getY :: IsNode n => n -> IO Double
+getY = cc_getY . toNode
+
+getWidth :: IsNode n => n -> IO Double
+getWidth = cc_getWidth . toNode
+
+getHeight :: IsNode n => n -> IO Double
+getHeight = cc_getHeight . toNode
+
+getAnchorX :: IsNode n => n -> IO Double
+getAnchorX = cc_getAnchorX . toNode
+
+getAnchorY :: IsNode n => n -> IO Double
+getAnchorY = cc_getAnchorY . toNode
+
+getSkewX :: IsNode n => n -> IO Double
+getSkewX = cc_getSkewX . toNode
+
+getSkewY :: IsNode n => n -> IO Double
+getSkewY = cc_getSkewY . toNode
+
+getZIndex :: IsNode n => n -> IO Int
+getZIndex = cc_getZIndex . toNode
+
+getRotationX :: IsNode n => n -> IO Double
+getRotationX = cc_getRotationX . toNode
+
+getRotationY :: IsNode n => n -> IO Double
+getRotationY = cc_getRotationY . toNode
+
+getScaleX :: IsNode n => n -> IO Double
+getScaleX = cc_getScaleX . toNode
+
+getScaleY :: IsNode n => n -> IO Double
+getScaleY = cc_getScaleY . toNode
+
+getVisible :: IsNode n => n -> IO Bool
+getVisible = cc_getVisible . toNode
+
+getColor :: IsNode n => n -> IO (Colour Double)
+getColor = fromJSValUnchecked <=< cc_getColor . toNode
+
+getCascadeColor :: IsNode n => n -> IO Bool
+getCascadeColor = cc_getCascadeColor . toNode
+
+getOpacity :: IsNode n => n -> IO Double
+getOpacity = ((/255) . fromIntegral <$>) . cc_getOpacity . toNode
+
+getCascadeOpacity :: IsNode n => n -> IO Bool
+getCascadeOpacity = cc_getCascadeOpacity . toNode
 
 foreign import javascript unsafe "$1.onEnter = function() { cc.Node.prototype.onEnter.call(this); $2(); }"  cc_setOnEnter :: Node -> Callback a -> IO ()
 foreign import javascript unsafe "$1.addChild($2)" cc_addChild :: Node -> Node -> IO ()

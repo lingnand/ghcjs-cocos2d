@@ -74,8 +74,7 @@ library
                        aeson,
                        text,
                        lens,
-                       colour,
-                       data-default
+                       colour
   
   -- Directories containing source files.
   -- hs-source-dirs:      
