@@ -4,7 +4,6 @@ import Data.Maybe
 import Control.Monad
 import GHCJS.Types
 import GHCJS.Marshal
-import JavaScript.Cocos2d.Class
 import JavaScript.Cocos2d.Types
 
 newtype Sys = Sys JSVal
@@ -28,8 +27,8 @@ instance ToJSVal OS where
 instance FromJSVal OS where
     fromJSVal = enumFromJSVal
 
-getOS :: Cocos2d m => Sys -> m OS
-getOS = liftIO . fmap (fromMaybe Unknown) . (fromJSVal <=< cc_getOS)
+getOS :: Sys -> IO OS
+getOS = fmap (fromMaybe Unknown) . (fromJSVal <=< cc_getOS)
 
 foreign import javascript unsafe "$1.os" cc_getOS :: Sys -> IO JSVal
 foreign import javascript unsafe "cc.sys.OS_IOS" cc_OS_IOS :: IO JSVal

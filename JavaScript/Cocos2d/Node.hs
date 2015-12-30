@@ -12,7 +12,6 @@ import Control.Lens
 import GHCJS.Types
 import GHCJS.Marshal.Internal
 import GHCJS.Foreign.Callback
-import JavaScript.Cocos2d.Class
 import JavaScript.Cocos2d.Types()
 import JavaScript.Cocos2d.Utils
 
@@ -56,16 +55,15 @@ instance Default NodeConfig where
                      , _cascadeOpacity = False
                      }
 
-createNode :: Cocos2d m => m Node
-createNode = liftIO cc_createNode
+foreign import javascript unsafe "new cc.Node()"  createNode :: IO Node
 
-createNodeWithConfig :: Cocos2d m => NodeConfig -> m Node
+createNodeWithConfig :: NodeConfig -> IO Node
 createNodeWithConfig c = createNode >>= \n -> setNodeConfig n c >> return n
 
 -- we are not using attr() here because it can be quite inefficient
-setNodeConfig :: (Cocos2d m, IsNode n) => n -> NodeConfig -> m ()
+setNodeConfig :: IsNode n => n -> NodeConfig -> IO ()
 setNodeConfig n (NodeConfig (V2 px py) width height (V2 ax ay) (V2 skx sky) zIndex
-          (V2 rx ry) (V2 slx sly) visible color cascadeColor opacity cascadeOpacity) = liftIO $ do
+          (V2 rx ry) (V2 slx sly) visible color cascadeColor opacity cascadeOpacity) = do
     let n' = toNode n
     cc_setX n' px >> cc_setY n' py
     cc_setWidth n' width >> cc_setHeight n' height
@@ -80,7 +78,7 @@ setNodeConfig n (NodeConfig (V2 px py) width height (V2 ax ay) (V2 skx sky) zInd
     cc_setOpacity n' (round $ opacity * 255)
     cc_setCascadeOpacity n' cascadeOpacity
 
-getNodeConfig :: (Cocos2d m, IsNode n) => n -> m NodeConfig
+getNodeConfig :: IsNode n => n -> IO NodeConfig
 getNodeConfig n = liftIO $ NodeConfig <$> (V2 <$> cc_getX n' <*> cc_getY n') <*> cc_getWidth n' <*> cc_getHeight n'
     <*> (V2 <$> cc_getAnchorX n' <*> cc_getAnchorY n') <*> (V2 <$> cc_getSkewX n' <*> cc_getSkewY n')
     <*> cc_getZIndex n' <*> (V2 <$> cc_getRotationX n' <*> cc_getRotationY n') <*> (V2 <$> cc_getScaleX n' <*> cc_getScaleY n')
@@ -88,19 +86,18 @@ getNodeConfig n = liftIO $ NodeConfig <$> (V2 <$> cc_getX n' <*> cc_getY n') <*>
     <*> ((/255) . fromIntegral <$> cc_getOpacity n') <*> cc_getCascadeOpacity n'
         where n' = toNode n
 
-modifyNodeConfig :: (Cocos2d m, IsNode n) => n -> (NodeConfig -> NodeConfig) -> m ()
+modifyNodeConfig :: IsNode n => n -> (NodeConfig -> NodeConfig) -> IO ()
 modifyNodeConfig n f = getNodeConfig n >>= setNodeConfig n . f
 
-setOnEnter :: (Cocos2d m, IsNode n) => n -> IO () -> m (IO ())
+setOnEnter :: IsNode n => n -> IO () -> IO (IO ())
 setOnEnter = convCallback . cc_setOnEnter . toNode
 
-addChild :: (Cocos2d m, IsNode n, IsNode c) => n -> c -> m ()
-addChild n c = liftIO $ cc_addChild (toNode n) (toNode c)
+addChild :: (IsNode n, IsNode c) => n -> c -> IO ()
+addChild n c = cc_addChild (toNode n) (toNode c)
 
-addChild' :: (Cocos2d m, IsNode n, IsNode c) => n -> c -> Int -> m ()
-addChild' n c localZOrder = liftIO $ cc_addChild' (toNode n) (toNode c) localZOrder
+addChild' :: (IsNode n, IsNode c) => n -> c -> Int -> IO ()
+addChild' n c localZOrder = cc_addChild' (toNode n) (toNode c) localZOrder
 
-foreign import javascript unsafe "new cc.Node()"  cc_createNode :: IO Node
 foreign import javascript unsafe "$1.onEnter = function() { cc.Node.prototype.onEnter.call(this); $2(); }"  cc_setOnEnter :: Node -> Callback a -> IO ()
 foreign import javascript unsafe "$1.addChild($2)" cc_addChild :: Node -> Node -> IO ()
 foreign import javascript unsafe "$1.addChild($2, $3)" cc_addChild' :: Node -> Node -> Int -> IO ()

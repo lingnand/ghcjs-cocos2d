@@ -2,7 +2,6 @@ module JavaScript.Cocos2d.EGLView where
 
 import GHCJS.Types
 import GHCJS.Marshal
-import JavaScript.Cocos2d.Class
 import JavaScript.Cocos2d.Types
 
 data ResolutionPolicy = ExactFit | NoBorder | ShowAll | FixedHeight | FixedWidth | Unknown
@@ -21,22 +20,13 @@ instance FromJSVal ResolutionPolicy where
 
 newtype EGLView = EGLView JSVal
 
-setEnableRetina :: Cocos2d m => EGLView -> Bool -> m ()
-setEnableRetina v b = liftIO $ cc_enableRetina v b
-
-setAdjustViewPort :: Cocos2d m => EGLView -> Bool -> m ()
-setAdjustViewPort v b = liftIO $ cc_adjustViewPort v b
-
-setDesignResolutionSize :: Cocos2d m => EGLView -> Int -> Int -> ResolutionPolicy -> m ()
+foreign import javascript unsafe "$1.enableRetina($2)" enableRetina :: EGLView -> Bool -> IO ()
+foreign import javascript unsafe "$1.adjustViewPort($2)" adjustViewPort :: EGLView -> Bool -> IO ()
+foreign import javascript unsafe "$1.resizeWithBrowserSize($2)" resizeWithBrowserSize :: EGLView -> Bool -> IO ()
+setDesignResolutionSize :: EGLView -> Int -> Int -> ResolutionPolicy -> IO ()
 setDesignResolutionSize v width height resolutionPolicy = liftIO $ cc_setDesignResolutionSize v width height =<< toJSVal resolutionPolicy
 
-setResizeWithBrowserSize :: Cocos2d m => EGLView -> Bool -> m ()
-setResizeWithBrowserSize v b = liftIO $ cc_resizeWithBrowserSize v b
-
-foreign import javascript unsafe "$1.enableRetina($2)" cc_enableRetina :: EGLView -> Bool -> IO ()
-foreign import javascript unsafe "$1.adjustViewPort($2)" cc_adjustViewPort :: EGLView -> Bool -> IO ()
 foreign import javascript unsafe "$1.setDesignResolutionSize($2, $3, $4)" cc_setDesignResolutionSize :: EGLView -> Int -> Int -> JSVal -> IO ()
-foreign import javascript unsafe "$1.resizeWithBrowserSize($2)" cc_resizeWithBrowserSize :: EGLView -> Bool -> IO ()
 foreign import javascript unsafe "cc.ResolutionPolicy.EXACT_FIT" cc_ResolutionPolicy_EXACT_FIT :: IO JSVal
 foreign import javascript unsafe "cc.ResolutionPolicy.NO_BORDER" cc_ResolutionPolicy_NO_BORDER :: IO JSVal
 foreign import javascript unsafe "cc.ResolutionPolicy.SHOW_ALL" cc_ResolutionPolicy_SHOW_ALL :: IO JSVal
