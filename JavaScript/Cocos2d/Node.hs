@@ -79,7 +79,7 @@ setNodeConfig n (NodeConfig (V2 px py) width height (V2 ax ay) (V2 skx sky) zInd
     cc_setCascadeOpacity n' cascadeOpacity
 
 getNodeConfig :: IsNode n => n -> IO NodeConfig
-getNodeConfig n = liftIO $ NodeConfig <$> (V2 <$> cc_getX n' <*> cc_getY n') <*> cc_getWidth n' <*> cc_getHeight n'
+getNodeConfig n = NodeConfig <$> (V2 <$> cc_getX n' <*> cc_getY n') <*> cc_getWidth n' <*> cc_getHeight n'
     <*> (V2 <$> cc_getAnchorX n' <*> cc_getAnchorY n') <*> (V2 <$> cc_getSkewX n' <*> cc_getSkewY n')
     <*> cc_getZIndex n' <*> (V2 <$> cc_getRotationX n' <*> cc_getRotationY n') <*> (V2 <$> cc_getScaleX n' <*> cc_getScaleY n')
     <*> cc_getVisible n' <*> (cc_getColor n' >>= fromJSValUnchecked) <*> cc_getCascadeColor n'

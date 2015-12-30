@@ -49,7 +49,6 @@ cabal-version:       >=1.10
 library
   -- Modules exported by the library.
   exposed-modules:     JavaScript.Cocos2d,
-                       JavaScript.Cocos2d.Class,
                        JavaScript.Cocos2d.Types,
                        JavaScript.Cocos2d.EGLView
                        JavaScript.Cocos2d.Director
@@ -61,7 +60,7 @@ library
   
   -- Modules included in this library but not exported.
   -- other-modules:       
-  ghc-options:         -Wall -O2
+  ghc-options:         -Wall -fno-warn-orphans -fno-warn-name-shadowing -O2
   
   -- LANGUAGE extensions used by modules in this package.
   -- default-extensions:    

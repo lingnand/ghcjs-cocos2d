@@ -24,7 +24,7 @@ foreign import javascript unsafe "$1.enableRetina($2)" enableRetina :: EGLView -
 foreign import javascript unsafe "$1.adjustViewPort($2)" adjustViewPort :: EGLView -> Bool -> IO ()
 foreign import javascript unsafe "$1.resizeWithBrowserSize($2)" resizeWithBrowserSize :: EGLView -> Bool -> IO ()
 setDesignResolutionSize :: EGLView -> Int -> Int -> ResolutionPolicy -> IO ()
-setDesignResolutionSize v width height resolutionPolicy = liftIO $ cc_setDesignResolutionSize v width height =<< toJSVal resolutionPolicy
+setDesignResolutionSize v width height resolutionPolicy = cc_setDesignResolutionSize v width height =<< toJSVal resolutionPolicy
 
 foreign import javascript unsafe "$1.setDesignResolutionSize($2, $3, $4)" cc_setDesignResolutionSize :: EGLView -> Int -> Int -> JSVal -> IO ()
 foreign import javascript unsafe "cc.ResolutionPolicy.EXACT_FIT" cc_ResolutionPolicy_EXACT_FIT :: IO JSVal
