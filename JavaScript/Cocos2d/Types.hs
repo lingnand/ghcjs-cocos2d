@@ -460,7 +460,7 @@ instance Enum Key where
                    | otherwise = []
 
 instance FromJSVal Key where
-    fromJSVal = flip catch handle . sequence . fmap (evaluate . toEnum) <=< fromJSVal
+    fromJSVal = flip catch handle . fmap Just . evaluate . toEnum . pFromJSVal
         where handle :: ErrorCall -> IO (Maybe Key)
               handle e = print e >> return Nothing
 
