@@ -23,7 +23,9 @@ instance IsNode LayerColor where
 instance IsLayer LayerColor where
     toLayer (LayerColor v) = Layer v
 
-createLayerColor :: Colour Double -> IO LayerColor
-createLayerColor = cc_createLayerColor <=< toJSVal
+foreign import javascript unsafe "new cc.LayerColor()" createLayerColor :: IO LayerColor
 
-foreign import javascript unsafe "new cc.LayerColor($1)" cc_createLayerColor :: JSVal -> IO LayerColor
+createLayerColor' :: Colour Double -> IO LayerColor
+createLayerColor' = cc_createLayerColor' <=< toJSVal
+
+foreign import javascript unsafe "new cc.LayerColor($1)" cc_createLayerColor' :: JSVal -> IO LayerColor

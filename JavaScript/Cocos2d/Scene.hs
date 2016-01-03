@@ -26,6 +26,6 @@ instance IsScene LoaderScene where
 foreign import javascript unsafe "new cc.LoaderScene()" createLoaderScene :: IO LoaderScene
 
 preload :: [String] -> IO () -> IO (LoaderScene, IO ())
-preload resources cb = flip convCallback' cb . cc_preload =<< toJSVal resources
+preload resources cb = flip convCallbackWithReturn cb . cc_preload =<< toJSVal resources
 
 foreign import javascript unsafe "cc.LoaderScene.preload($1, $2, cc.game)" cc_preload :: JSVal -> Callback a -> IO LoaderScene
