@@ -7,7 +7,7 @@ module JavaScript.Cocos2d.Types (
     Touch,
     Key(..),
     MouseEvent,
-    pEnumFromJSVal
+    enumFromJSVal
 ) where
 
 import Data.Time
@@ -15,12 +15,12 @@ import qualified Data.Aeson as A
 import qualified Data.JSString as JS
 import qualified Data.Text as T
 import Data.Word
-import Data.List
-import Data.Maybe
 import Data.Colour as C
 import Data.Colour.SRGB
 import Linear
 import Control.Monad
+import Control.Monad.Trans.Class
+import Control.Monad.Trans.Maybe
 import Control.Lens
 import Control.Exception
 import GHCJS.Types
@@ -471,7 +471,9 @@ instance ToJSVal Key where
 newtype MouseEvent = MouseEvent JSVal deriving (FromJSVal, ToJSVal)
 
 -- convert a JSVal from an Enum, Bounded instance by trying values one by one
-pEnumFromJSVal :: (Enum a, Bounded a, PToJSVal a) => JSVal -> a
-pEnumFromJSVal v = fromMaybe maxBound $ find (js_eq v . pToJSVal) (init [minBound .. maxBound])
+enumFromJSVal :: (Enum a, Bounded a, ToJSVal a) => JSVal -> IO (Maybe a)
+enumFromJSVal v = runMaybeT . msum . flip fmap [minBound .. maxBound] $ \x -> do
+    lift (toJSVal x) >>= guard . js_eq v
+    return x
 
 foreign import javascript unsafe "$1===$2" js_eq :: JSVal -> JSVal -> Bool
