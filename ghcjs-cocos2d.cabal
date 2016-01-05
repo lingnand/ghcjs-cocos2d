@@ -51,6 +51,7 @@ library
   exposed-modules:     JavaScript.Cocos2d,
                        JavaScript.Cocos2d.Types,
                        JavaScript.Cocos2d.EventListener,
+                       JavaScript.Cocos2d.Schedule,
                        JavaScript.Cocos2d.Node,
                        JavaScript.Cocos2d.Layer,
                        JavaScript.Cocos2d.Scene

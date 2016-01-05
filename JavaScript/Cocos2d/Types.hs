@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TemplateHaskell #-}
@@ -55,6 +56,13 @@ instance FromJSVal (V2 Double) where
 
 instance ToJSVal (V2 Double) where
     toJSVal (V2 x y) = cc_p x y
+
+-- NominalDiffTime <> float (in seconds)
+instance FromJSVal NominalDiffTime where
+    fromJSVal = return . Just . (realToFrac :: Double -> NominalDiffTime) . pFromJSVal
+
+instance ToJSVal NominalDiffTime where
+    toJSVal = toJSVal . (realToFrac :: NominalDiffTime -> Double)
 
 -- UTCTime <-> Date
 instance FromJSVal UTCTime where
@@ -449,9 +457,10 @@ instance Enum Key where
                                                                   | x == y = (int, [])
                                                                   | otherwise = count (int+1) xs
                                                splice _ [] = []
-                                               splice int (x:xs) | x == y = if int == 0 then [x] else []
-                                                                 | int == 0 = x:splice intv xs
-                                                                 | otherwise = splice (int-1) xs
+                                               splice (int :: Int) (x:xs)
+                                                | x == y = if int == 0 then [x] else []
+                                                | int == 0 = x:splice intv xs
+                                                | otherwise = splice (int-1) xs
                                            in x1:splice 0 rem
                            | otherwise = []
         where vs = dropWhile (/= x1) keys
