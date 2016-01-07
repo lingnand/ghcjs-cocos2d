@@ -29,6 +29,12 @@ addChild n c = cc_addChild (toNode n) (toNode c)
 addChild' :: (IsNode n, IsNode c) => n -> c -> Int -> IO ()
 addChild' n c localZOrder = cc_addChild' (toNode n) (toNode c) localZOrder
 
+removeChild :: (IsNode n, IsNode c) => n -> c -> IO ()
+removeChild n c = cc_removeChild (toNode n) (toNode c)
+
+removeAllChildren :: IsNode n => n -> IO()
+removeAllChildren = cc_removeAllChildren . toNode
+
 setX :: IsNode n => n -> Double -> IO ()
 setX = cc_setX . toNode
 
@@ -140,6 +146,8 @@ getCascadeOpacity = cc_getCascadeOpacity . toNode
 foreign import javascript unsafe "$1.onEnter = function() { cc.Node.prototype.onEnter.call(this); $2(); }"  cc_setOnEnter :: Node -> Callback a -> IO ()
 foreign import javascript unsafe "$1.addChild($2)" cc_addChild :: Node -> Node -> IO ()
 foreign import javascript unsafe "$1.addChild($2, $3)" cc_addChild' :: Node -> Node -> Int -> IO ()
+foreign import javascript unsafe "$1.removeChild($2, false)" cc_removeChild :: Node -> Node -> IO ()
+foreign import javascript unsafe "$1.removeAllChildren(false)" cc_removeAllChildren :: Node -> IO ()
 foreign import javascript unsafe "if ($1.x !== $2) {$1.x = $2}" cc_setX :: Node -> Double -> IO ()
 foreign import javascript unsafe "if ($1.y !== $2) {$1.y = $2}" cc_setY :: Node -> Double -> IO ()
 foreign import javascript unsafe "if ($1.width !== $2) {$1.width = $2}" cc_setWidth :: Node -> Double -> IO ()
