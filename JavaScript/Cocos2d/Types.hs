@@ -3,17 +3,18 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE FlexibleInstances #-}
-module JavaScript.Cocos2d.Types (
-    Acceleration(..),
-    Touch(Touch),
-    location,
-    previousLocation,
-    delta,
-    startLocation,
-    Key(..),
-    MouseEvent,
-    enumFromJSVal
-) where
+module JavaScript.Cocos2d.Types
+    (
+      Acceleration(..)
+    , Touch(Touch)
+    , location
+    , previousLocation
+    , delta
+    , startLocation
+    , Key(..)
+    , MouseEvent
+    , enumFromJSVal
+    ) where
 
 import Data.Time
 import qualified Data.Aeson as A
