@@ -2,9 +2,10 @@
 {-# LANGUAGE FlexibleInstances #-}
 module JavaScript.Cocos2d.Node where
 
-import Control.Monad
+import Linear
 import Data.Word
 import Data.Colour
+import Control.Monad.IO.Class
 import GHCJS.Types
 import GHCJS.Marshal.Internal
 import GHCJS.Foreign.Callback
@@ -18,131 +19,139 @@ newtype Node = Node JSVal
 instance IsNode Node where
     toNode = id
 
-foreign import javascript unsafe "new cc.Node()"  createNode :: IO Node
+createNode :: MonadIO m => m Node
+createNode = liftIO cc_createNode
 
-setOnEnter :: IsNode n => n -> IO () -> IO (IO ())
-setOnEnter = convCallback . cc_setOnEnter . toNode
+setOnEnter :: (IsNode n, MonadIO m) => n -> IO () -> m (IO ())
+setOnEnter n = liftIO . convCallback (cc_setOnEnter (toNode n))
 
-addChild :: (IsNode n, IsNode c) => n -> c -> IO ()
-addChild n c = cc_addChild (toNode n) (toNode c)
+addChild :: (IsNode n, IsNode c, MonadIO m) => n -> c -> m ()
+addChild n c = liftIO $ cc_addChild (toNode n) (toNode c)
 
-addChild' :: (IsNode n, IsNode c) => n -> c -> Int -> IO ()
-addChild' n c localZOrder = cc_addChild' (toNode n) (toNode c) localZOrder
+addChild' :: (IsNode n, IsNode c, MonadIO m) => n -> c -> Int -> m ()
+addChild' n c localZOrder = liftIO $ cc_addChild' (toNode n) (toNode c) localZOrder
 
-removeChild :: (IsNode n, IsNode c) => n -> c -> IO ()
-removeChild n c = cc_removeChild (toNode n) (toNode c)
+removeChild :: (IsNode n, IsNode c, MonadIO m) => n -> c -> m ()
+removeChild n c = liftIO $ cc_removeChild (toNode n) (toNode c)
 
-removeAllChildren :: IsNode n => n -> IO()
-removeAllChildren = cc_removeAllChildren . toNode
+removeAllChildren :: (IsNode n, MonadIO m) => n -> m()
+removeAllChildren = liftIO . cc_removeAllChildren . toNode
 
-setX :: IsNode n => n -> Double -> IO ()
-setX = cc_setX . toNode
+setX :: (IsNode n, MonadIO m) => n -> Double -> m ()
+setX n = liftIO . cc_setX (toNode n)
 
-setY :: IsNode n => n -> Double -> IO ()
-setY = cc_setY . toNode
+setY :: (IsNode n, MonadIO m) => n -> Double -> m ()
+setY n = liftIO . cc_setY (toNode n)
 
-setWidth :: IsNode n => n -> Double -> IO ()
-setWidth = cc_setWidth . toNode
+setWidth :: (IsNode n, MonadIO m) => n -> Double -> m ()
+setWidth n = liftIO . cc_setWidth (toNode n)
 
-setHeight :: IsNode n => n -> Double -> IO ()
-setHeight = cc_setHeight . toNode
+setHeight :: (IsNode n, MonadIO m) => n -> Double -> m ()
+setHeight n = liftIO . cc_setHeight (toNode n)
 
-setAnchorX :: IsNode n => n -> Double -> IO ()
-setAnchorX = cc_setAnchorX . toNode
+setAnchorX :: (IsNode n, MonadIO m) => n -> Double -> m ()
+setAnchorX n = liftIO . cc_setAnchorX (toNode n)
 
-setAnchorY :: IsNode n => n -> Double -> IO ()
-setAnchorY = cc_setAnchorY . toNode
+setAnchorY :: (IsNode n, MonadIO m) => n -> Double -> m ()
+setAnchorY n = liftIO . cc_setAnchorY (toNode n)
 
-setSkewX :: IsNode n => n -> Double -> IO ()
-setSkewX = cc_setSkewX . toNode
+setSkewX :: (IsNode n, MonadIO m) => n -> Double -> m ()
+setSkewX n = liftIO . cc_setSkewX (toNode n)
 
-setSkewY :: IsNode n => n -> Double -> IO ()
-setSkewY = cc_setSkewY . toNode
+setSkewY :: (IsNode n, MonadIO m) => n -> Double -> m ()
+setSkewY n = liftIO . cc_setSkewY (toNode n)
 
-setZIndex :: IsNode n => n -> Int -> IO ()
-setZIndex = cc_setZIndex . toNode
+setZIndex :: (IsNode n, MonadIO m) => n -> Int -> m ()
+setZIndex n = liftIO . cc_setZIndex (toNode n)
 
-setRotationX :: IsNode n => n -> Double -> IO ()
-setRotationX = cc_setRotationX . toNode
+setRotationX :: (IsNode n, MonadIO m) => n -> Double -> m ()
+setRotationX n = liftIO . cc_setRotationX (toNode n)
 
-setRotationY :: IsNode n => n -> Double -> IO ()
-setRotationY = cc_setRotationY . toNode
+setRotationY :: (IsNode n, MonadIO m) => n -> Double -> m ()
+setRotationY n = liftIO . cc_setRotationY (toNode n)
 
-setScaleX :: IsNode n => n -> Double -> IO ()
-setScaleX = cc_setScaleX . toNode
+setScaleX :: (IsNode n, MonadIO m) => n -> Double -> m ()
+setScaleX n = liftIO . cc_setScaleX (toNode n)
 
-setScaleY :: IsNode n => n -> Double -> IO ()
-setScaleY = cc_setScaleY . toNode
+setScaleY :: (IsNode n, MonadIO m) => n -> Double -> m ()
+setScaleY n = liftIO . cc_setScaleY (toNode n)
 
-setVisible :: IsNode n => n -> Bool -> IO ()
-setVisible = cc_setVisible . toNode
+setVisible :: (IsNode n, MonadIO m) => n -> Bool -> m ()
+setVisible n = liftIO . cc_setVisible (toNode n)
 
-setColor :: IsNode n => n -> Colour Double -> IO ()
-setColor n = cc_setColor (toNode n) <=< toJSVal
+setColor :: (IsNode n, MonadIO m) => n -> Colour Double -> m ()
+setColor n c = liftIO $ cc_setColor (toNode n) =<< toJSVal c
 
-setCascadeColor :: IsNode n => n -> Bool -> IO ()
-setCascadeColor = cc_setCascadeColor . toNode
+setCascadeColor :: (IsNode n, MonadIO m) => n -> Bool -> m ()
+setCascadeColor n = liftIO . cc_setCascadeColor (toNode n)
 
-setOpacity :: IsNode n => n -> Double -> IO ()
-setOpacity n o = cc_setOpacity (toNode n) (round $ o * 255)
+setOpacity :: (IsNode n, MonadIO m) => n -> Double -> m ()
+setOpacity n o = liftIO $ cc_setOpacity (toNode n) (round $ o * 255)
 
-setCascadeOpacity :: IsNode n => n -> Bool -> IO ()
-setCascadeOpacity = cc_setCascadeOpacity . toNode
+setCascadeOpacity :: (IsNode n, MonadIO m) => n -> Bool -> m ()
+setCascadeOpacity n = liftIO . cc_setCascadeOpacity (toNode n)
 
-getX :: IsNode n => n -> IO Double
-getX = cc_getX . toNode
+getX :: (IsNode n, MonadIO m) => n -> m Double
+getX = liftIO . cc_getX . toNode
 
-getY :: IsNode n => n -> IO Double
-getY = cc_getY . toNode
+getY :: (IsNode n, MonadIO m) => n -> m Double
+getY = liftIO . cc_getY . toNode
 
-getWidth :: IsNode n => n -> IO Double
-getWidth = cc_getWidth . toNode
+getWidth :: (IsNode n, MonadIO m) => n -> m Double
+getWidth = liftIO . cc_getWidth . toNode
 
-getHeight :: IsNode n => n -> IO Double
-getHeight = cc_getHeight . toNode
+getHeight :: (IsNode n, MonadIO m) => n -> m Double
+getHeight = liftIO . cc_getHeight . toNode
 
-getAnchorX :: IsNode n => n -> IO Double
-getAnchorX = cc_getAnchorX . toNode
+getAnchorX :: (IsNode n, MonadIO m) => n -> m Double
+getAnchorX = liftIO . cc_getAnchorX . toNode
 
-getAnchorY :: IsNode n => n -> IO Double
-getAnchorY = cc_getAnchorY . toNode
+getAnchorY :: (IsNode n, MonadIO m) => n -> m Double
+getAnchorY = liftIO . cc_getAnchorY . toNode
 
-getSkewX :: IsNode n => n -> IO Double
-getSkewX = cc_getSkewX . toNode
+getSkewX :: (IsNode n, MonadIO m) => n -> m Double
+getSkewX = liftIO . cc_getSkewX . toNode
 
-getSkewY :: IsNode n => n -> IO Double
-getSkewY = cc_getSkewY . toNode
+getSkewY :: (IsNode n, MonadIO m) => n -> m Double
+getSkewY = liftIO . cc_getSkewY . toNode
 
-getZIndex :: IsNode n => n -> IO Int
-getZIndex = cc_getZIndex . toNode
+getZIndex :: (IsNode n, MonadIO m) => n -> m Int
+getZIndex = liftIO . cc_getZIndex . toNode
 
-getRotationX :: IsNode n => n -> IO Double
-getRotationX = cc_getRotationX . toNode
+getRotationX :: (IsNode n, MonadIO m) => n -> m Double
+getRotationX = liftIO . cc_getRotationX . toNode
 
-getRotationY :: IsNode n => n -> IO Double
-getRotationY = cc_getRotationY . toNode
+getRotationY :: (IsNode n, MonadIO m) => n -> m Double
+getRotationY = liftIO . cc_getRotationY . toNode
 
-getScaleX :: IsNode n => n -> IO Double
-getScaleX = cc_getScaleX . toNode
+getScaleX :: (IsNode n, MonadIO m) => n -> m Double
+getScaleX = liftIO . cc_getScaleX . toNode
 
-getScaleY :: IsNode n => n -> IO Double
-getScaleY = cc_getScaleY . toNode
+getScaleY :: (IsNode n, MonadIO m) => n -> m Double
+getScaleY = liftIO . cc_getScaleY . toNode
 
-getVisible :: IsNode n => n -> IO Bool
-getVisible = cc_getVisible . toNode
+getVisible :: (IsNode n, MonadIO m) => n -> m Bool
+getVisible = liftIO . cc_getVisible . toNode
 
-getColor :: IsNode n => n -> IO (Colour Double)
-getColor = fromJSValUnchecked <=< cc_getColor . toNode
+getColor :: (IsNode n, MonadIO m) => n -> m (Colour Double)
+getColor n = liftIO $ fromJSValUnchecked =<< cc_getColor (toNode n)
 
-getCascadeColor :: IsNode n => n -> IO Bool
-getCascadeColor = cc_getCascadeColor . toNode
+getCascadeColor :: (IsNode n, MonadIO m) => n -> m Bool
+getCascadeColor = liftIO . cc_getCascadeColor . toNode
 
-getOpacity :: IsNode n => n -> IO Double
-getOpacity = ((/255) . fromIntegral <$>) . cc_getOpacity . toNode
+getOpacity :: (IsNode n, MonadIO m) => n -> m Double
+getOpacity = liftIO . ((/255) . fromIntegral <$>) . cc_getOpacity . toNode
 
-getCascadeOpacity :: IsNode n => n -> IO Bool
-getCascadeOpacity = cc_getCascadeOpacity . toNode
+getCascadeOpacity :: (IsNode n, MonadIO m) => n -> m Bool
+getCascadeOpacity = liftIO . cc_getCascadeOpacity . toNode
 
+convertToNodeSpace :: (IsNode n, MonadIO m) => n -> V2 Double -> m (V2 Double)
+convertToNodeSpace n p = liftIO $ fromJSValUnchecked =<< cc_convertToNodeSpace (toNode n) =<< toJSVal p
+
+convertToWorldSpace :: (IsNode n, MonadIO m) => n -> V2 Double -> m (V2 Double)
+convertToWorldSpace n p = liftIO $ fromJSValUnchecked =<< cc_convertToWorldSpace (toNode n) =<< toJSVal p
+
+foreign import javascript unsafe "new cc.Node()"  cc_createNode :: IO Node
 foreign import javascript unsafe "$1.onEnter = function() { cc.Node.prototype.onEnter.call(this); $2(); }"  cc_setOnEnter :: Node -> Callback a -> IO ()
 foreign import javascript unsafe "$1.addChild($2)" cc_addChild :: Node -> Node -> IO ()
 foreign import javascript unsafe "$1.addChild($2, $3)" cc_addChild' :: Node -> Node -> Int -> IO ()
@@ -184,3 +193,5 @@ foreign import javascript unsafe "$1.color" cc_getColor :: Node -> IO JSVal
 foreign import javascript unsafe "$1.cascadeColor" cc_getCascadeColor :: Node -> IO Bool
 foreign import javascript unsafe "$1.opacity" cc_getOpacity :: Node -> IO Word8
 foreign import javascript unsafe "$1.cascadeOpacity" cc_getCascadeOpacity :: Node -> IO Bool
+foreign import javascript unsafe "$1.convertToNodeSpace($2)" cc_convertToNodeSpace :: Node -> JSVal -> IO JSVal
+foreign import javascript unsafe "$1.convertToWorldSpace($2)" cc_convertToWorldSpace :: Node -> JSVal -> IO JSVal

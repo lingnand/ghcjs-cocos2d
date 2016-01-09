@@ -5,7 +5,11 @@
 {-# LANGUAGE FlexibleInstances #-}
 module JavaScript.Cocos2d.Types (
     Acceleration(..),
-    Touch,
+    Touch(Touch),
+    location,
+    previousLocation,
+    delta,
+    startLocation,
     Key(..),
     MouseEvent,
     enumFromJSVal
@@ -38,6 +42,11 @@ foreign import javascript unsafe "$1.toISOString()" date_toISOString :: JSVal ->
 foreign import javascript unsafe "$1.x" cc_getX :: JSVal -> IO Double
 foreign import javascript unsafe "$1.y" cc_getY :: JSVal -> IO Double
 foreign import javascript unsafe "cc.p($1, $2)" cc_p :: Double -> Double -> IO JSVal
+-- Touch
+foreign import javascript unsafe "$1.getLocation()" cc_getLocation :: JSVal -> IO JSVal
+foreign import javascript unsafe "$1.getPreviousLocation()" cc_getPreviousLocation :: JSVal -> IO JSVal
+foreign import javascript unsafe "$1.getDelta()" cc_getDelta :: JSVal -> IO JSVal
+foreign import javascript unsafe "$1.getStartLocation()" cc_getStartLocation :: JSVal -> IO JSVal
 -- Acceleration
 foreign import javascript unsafe "$1.z" cc_getZ :: JSVal -> IO Double
 foreign import javascript unsafe "$1.timestamp" cc_getTimestamp :: JSVal -> IO JSVal
@@ -112,7 +121,18 @@ instance ToJSVal (AlphaColour Double) where
               RGB r g b = toSRGB24 pureC
 
 -- Touch
-newtype Touch = Touch JSVal deriving (FromJSVal, ToJSVal)
+data Touch = Touch { _location :: V2 Double
+                   , _previousLocation :: V2 Double
+                   , _delta :: V2 Double
+                   , _startLocation :: V2 Double
+                   } deriving (Show, Eq, Ord)
+makeLenses ''Touch
+
+instance FromJSVal Touch where
+    fromJSVal v = liftM4 Touch <$> (cc_getLocation v >>= fromJSVal)
+                               <*> (cc_getPreviousLocation v >>= fromJSVal)
+                               <*> (cc_getDelta v >>= fromJSVal)
+                               <*> (cc_getStartLocation v >>= fromJSVal)
 
 -- Key
 data Key =

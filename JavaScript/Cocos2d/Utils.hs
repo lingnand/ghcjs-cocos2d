@@ -17,7 +17,10 @@ convCallbackWithReturn ffi h = do
         return (a, releaseCallback cb)
 
 convCallback1 :: FromJSVal a => (Callback (JSVal -> IO ()) -> IO ()) -> (a -> IO ()) -> IO (IO ())
-convCallback1 ffi h = snd <$> convCallback1WithReturn ffi h
+convCallback1 ffi h = do
+        cb <- syncCallback1 ContinueAsync $ mapM_ h <=< fromJSVal
+        ffi cb
+        return $ releaseCallback cb
 
 convCallback1WithReturn :: FromJSVal a => (Callback (JSVal -> IO ()) -> IO b) -> (a -> IO ()) -> IO (b, IO ())
 convCallback1WithReturn ffi h = do

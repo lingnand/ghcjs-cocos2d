@@ -1,5 +1,6 @@
 module JavaScript.Cocos2d.Scene where
 
+import Control.Monad.IO.Class
 import GHCJS.Types
 import GHCJS.Marshal
 import GHCJS.Foreign.Callback
@@ -15,7 +16,8 @@ instance IsNode Scene where
 instance IsScene Scene where
     toScene = id
 
-foreign import javascript unsafe "new cc.Scene()" createScene :: IO Scene
+createScene :: MonadIO m => m Scene
+createScene = liftIO cc_createScene
 
 newtype LoaderScene = LoaderScene JSVal
 instance IsNode LoaderScene where
@@ -23,9 +25,12 @@ instance IsNode LoaderScene where
 instance IsScene LoaderScene where
     toScene (LoaderScene v) = Scene v
 
-foreign import javascript unsafe "new cc.LoaderScene()" createLoaderScene :: IO LoaderScene
+createLoaderScene :: MonadIO m => m LoaderScene
+createLoaderScene = liftIO cc_createLoaderScene
 
 preload :: [String] -> IO () -> IO (LoaderScene, IO ())
-preload resources cb = flip convCallbackWithReturn cb . cc_preload =<< toJSVal resources
+preload resources cb = liftIO . flip convCallbackWithReturn cb . cc_preload =<< toJSVal resources
 
+foreign import javascript unsafe "new cc.Scene()" cc_createScene :: IO Scene
+foreign import javascript unsafe "new cc.LoaderScene()" cc_createLoaderScene :: IO LoaderScene
 foreign import javascript unsafe "cc.LoaderScene.preload($1, $2, cc.game)" cc_preload :: JSVal -> Callback a -> IO LoaderScene
