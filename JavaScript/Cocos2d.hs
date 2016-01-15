@@ -3,15 +3,15 @@ module JavaScript.Cocos2d where
 
 import Linear
 import GHCJS.Types
-import GHCJS.Marshal.Internal
+import GHCJS.Marshal
 import Control.Monad
 import Control.Monad.IO.Class
 import JavaScript.Cocos2d.Scene
-import JavaScript.Cocos2d.Types
+import JavaScript.Cocos2d.Utils
 
 --- sys
 data OS = IOS | Android | Windows | Marmalade | Linux | Bada | Blackberry | OSX | WP8 | WinRT
-        deriving (Bounded, Enum, Show)
+        deriving (Bounded, Enum, Show, Eq, Ord, Read)
 
 getOS :: IO (Maybe OS)
 getOS = cc_os >>= fromJSVal
@@ -32,7 +32,7 @@ instance ToJSVal OS where
     toJSVal WinRT = cc_OS_WINRT
 
 instance FromJSVal OS where
-    fromJSVal = enumFromJSVal
+    fromJSVal = enumFromJSValByTryAll
 
 foreign import javascript unsafe "cc.sys.os" cc_os :: IO JSVal
 foreign import javascript unsafe "cc.winSize.width" cc_getWinWidth :: IO Double
@@ -53,18 +53,15 @@ runScene :: MonadIO m => Scene -> m ()
 runScene = liftIO . cc_runScene
 
 --- EGLView
+-- | Mapping from 0 - 4
 data ResolutionPolicy = ExactFit | NoBorder | ShowAll | FixedHeight | FixedWidth
-        deriving (Bounded, Enum, Show)
+        deriving (Bounded, Enum, Show, Eq, Ord, Read)
 
 instance ToJSVal ResolutionPolicy where
-    toJSVal ExactFit = cc_ResolutionPolicy_EXACT_FIT
-    toJSVal NoBorder = cc_ResolutionPolicy_NO_BORDER
-    toJSVal ShowAll = cc_ResolutionPolicy_SHOW_ALL
-    toJSVal FixedHeight = cc_ResolutionPolicy_FIXED_HEIGHT
-    toJSVal FixedWidth = cc_ResolutionPolicy_FIXED_WIDTH
+    toJSVal = toJSVal . fromEnum
 
 instance FromJSVal ResolutionPolicy where
-    fromJSVal = enumFromJSVal
+    fromJSVal = enumFromJSValByInt
 
 setEnableRetina :: MonadIO m => Bool -> m ()
 setEnableRetina = liftIO . cc_setEnableRetina
@@ -83,8 +80,3 @@ foreign import javascript unsafe "cc.view.enableRetina($1)" cc_setEnableRetina :
 foreign import javascript unsafe "cc.view.adjustViewPort($1)" cc_setAdjustViewPort :: Bool -> IO ()
 foreign import javascript unsafe "cc.view.resizeWithBrowserSize($1)" cc_setResizeWithBrowserSize :: Bool -> IO ()
 foreign import javascript unsafe "cc.view.setDesignResolutionSize($1, $2, $3)" cc_setDesignResolutionSize :: Int -> Int -> JSVal -> IO ()
-foreign import javascript unsafe "cc.ResolutionPolicy.EXACT_FIT" cc_ResolutionPolicy_EXACT_FIT :: IO JSVal
-foreign import javascript unsafe "cc.ResolutionPolicy.NO_BORDER" cc_ResolutionPolicy_NO_BORDER :: IO JSVal
-foreign import javascript unsafe "cc.ResolutionPolicy.SHOW_ALL" cc_ResolutionPolicy_SHOW_ALL :: IO JSVal
-foreign import javascript unsafe "cc.ResolutionPolicy.FIXED_HEIGHT" cc_ResolutionPolicy_FIXED_HEIGHT :: IO JSVal
-foreign import javascript unsafe "cc.ResolutionPolicy.FIXED_WIDTH" cc_ResolutionPolicy_FIXED_WIDTH :: IO JSVal

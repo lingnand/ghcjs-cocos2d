@@ -4,6 +4,7 @@ import Data.Colour
 import Control.Monad.IO.Class
 import GHCJS.Types
 import GHCJS.Marshal
+import GHCJS.Marshal.Pure
 import JavaScript.Cocos2d.Node
 
 class IsNode a => IsLayer a where
@@ -11,7 +12,7 @@ class IsNode a => IsLayer a where
 
 newtype Layer = Layer JSVal
 instance IsNode Layer where
-    toNode (Layer v) = Node v
+    toNode (Layer v) = pFromJSVal v
 instance IsLayer Layer where
     toLayer = id
 
@@ -20,7 +21,7 @@ createLayer = liftIO cc_createLayer
 
 newtype LayerColor = LayerColor JSVal
 instance IsNode LayerColor where
-    toNode (LayerColor v) = Node v
+    toNode (LayerColor v) = pFromJSVal v
 instance IsLayer LayerColor where
     toLayer (LayerColor v) = Layer v
 

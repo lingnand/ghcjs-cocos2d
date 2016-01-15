@@ -1,13 +1,64 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
-module JavaScript.Cocos2d.Node where
+module JavaScript.Cocos2d.Node
+    (
+      IsNode(..)
+    , Node
+    , createNode
+    , setOnEnter
+    , addChild
+    , addChild'
+    , removeChild
+    , removeAllChildren
+    , setX
+    , setY
+    , setPosition
+    , setWidth
+    , setHeight
+    , setAnchorX
+    , setAnchorY
+    , setSkewX
+    , setSkewY
+    , setZIndex
+    , setRotationX
+    , setRotationY
+    , setScaleX
+    , setScaleY
+    , setVisible
+    , setColor
+    , setCascadeColor
+    , setOpacity
+    , setCascadeOpacity
+    , getX
+    , getY
+    , getWidth
+    , getHeight
+    , getAnchorX
+    , getAnchorY
+    , getSkewX
+    , getSkewY
+    , getZIndex
+    , getRotationX
+    , getRotationY
+    , getScaleX
+    , getScaleY
+    , getVisible
+    , getColor
+    , getCascadeColor
+    , getOpacity
+    , getCascadeOpacity
+    , convertToNodeSpace
+    , convertToWorldSpace
+    ) where
 
 import Linear
 import Data.Word
 import Data.Colour
 import Control.Monad.IO.Class
 import GHCJS.Types
-import GHCJS.Marshal.Internal
+import GHCJS.Marshal
+import GHCJS.Marshal.Pure
 import GHCJS.Foreign.Callback
 import JavaScript.Cocos2d.Types()
 import JavaScript.Cocos2d.Utils
@@ -15,7 +66,7 @@ import JavaScript.Cocos2d.Utils
 class IsNode a where
     toNode :: a -> Node
 
-newtype Node = Node JSVal
+newtype Node = Node JSVal deriving (PToJSVal, PFromJSVal)
 instance IsNode Node where
     toNode = id
 
@@ -42,6 +93,9 @@ setX n = liftIO . cc_setX (toNode n)
 
 setY :: (IsNode n, MonadIO m) => n -> Double -> m ()
 setY n = liftIO . cc_setY (toNode n)
+
+setPosition :: (IsNode n, MonadIO m) => n -> Double -> Double -> m ()
+setPosition n x y = liftIO $ cc_setPosition (toNode n) x y
 
 setWidth :: (IsNode n, MonadIO m) => n -> Double -> m ()
 setWidth n = liftIO . cc_setWidth (toNode n)
@@ -159,6 +213,7 @@ foreign import javascript unsafe "$1.removeChild($2, false)" cc_removeChild :: N
 foreign import javascript unsafe "$1.removeAllChildren(false)" cc_removeAllChildren :: Node -> IO ()
 foreign import javascript unsafe "if ($1.x !== $2) {$1.x = $2}" cc_setX :: Node -> Double -> IO ()
 foreign import javascript unsafe "if ($1.y !== $2) {$1.y = $2}" cc_setY :: Node -> Double -> IO ()
+foreign import javascript unsafe "$1.setPosition($2, $3)" cc_setPosition :: Node -> Double -> Double -> IO ()
 foreign import javascript unsafe "if ($1.width !== $2) {$1.width = $2}" cc_setWidth :: Node -> Double -> IO ()
 foreign import javascript unsafe "if ($1.height !== $2) {$1.height = $2}" cc_setHeight :: Node -> Double -> IO ()
 foreign import javascript unsafe "if ($1.anchorX !== $2) {$1.anchorX = $2}" cc_setAnchorX :: Node -> Double -> IO ()

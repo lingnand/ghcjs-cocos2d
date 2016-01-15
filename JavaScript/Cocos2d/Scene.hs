@@ -3,6 +3,7 @@ module JavaScript.Cocos2d.Scene where
 import Control.Monad.IO.Class
 import GHCJS.Types
 import GHCJS.Marshal
+import GHCJS.Marshal.Pure
 import GHCJS.Foreign.Callback
 import JavaScript.Cocos2d.Node
 import JavaScript.Cocos2d.Utils
@@ -12,7 +13,7 @@ class IsNode a => IsScene a where
 
 newtype Scene = Scene JSVal
 instance IsNode Scene where
-    toNode (Scene v) = Node v
+    toNode (Scene v) = pFromJSVal v
 instance IsScene Scene where
     toScene = id
 
@@ -21,7 +22,7 @@ createScene = liftIO cc_createScene
 
 newtype LoaderScene = LoaderScene JSVal
 instance IsNode LoaderScene where
-    toNode (LoaderScene v) = Node v
+    toNode (LoaderScene v) = pFromJSVal v
 instance IsScene LoaderScene where
     toScene (LoaderScene v) = Scene v
 

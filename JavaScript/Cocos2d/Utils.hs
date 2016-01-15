@@ -3,9 +3,13 @@
 module JavaScript.Cocos2d.Utils where
 
 import Control.Monad
+import Control.Monad.Trans.Class
+import Control.Monad.Trans.Maybe
 import GHCJS.Types
 import GHCJS.Marshal
+import GHCJS.Marshal.Pure
 import GHCJS.Foreign.Callback
+import Control.Exception
 
 convCallback :: (Callback (IO ()) -> IO ()) -> IO () -> IO (IO ())
 convCallback ffi h = snd <$> convCallbackWithReturn ffi h
@@ -33,3 +37,16 @@ convCallback2 ffi h = do
     cb <- syncCallback2 ContinueAsync $ \a b -> join . fmap sequence_ $ liftM2 h <$> fromJSVal a <*> fromJSVal b
     ffi cb
     return $ releaseCallback cb
+
+-- convert a JSVal from an Enum, Bounded instance by trying values one by one
+enumFromJSValByTryAll :: (Enum a, Bounded a, ToJSVal a) => JSVal -> IO (Maybe a)
+enumFromJSValByTryAll v = runMaybeT . msum . flip fmap [minBound .. maxBound] $ \x -> do
+    lift (toJSVal x) >>= guard . js_eq v
+    return x
+
+enumFromJSValByInt :: Enum a => JSVal -> IO (Maybe a)
+enumFromJSValByInt = flip catch handle . fmap Just . evaluate . toEnum . pFromJSVal
+  where handle :: ErrorCall -> IO (Maybe a)
+        handle e = print e >> return Nothing
+
+foreign import javascript unsafe "$1===$2" js_eq :: JSVal -> JSVal -> Bool

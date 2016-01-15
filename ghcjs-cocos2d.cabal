@@ -49,12 +49,13 @@ cabal-version:       >=1.10
 library
   -- Modules exported by the library.
   exposed-modules:     JavaScript.Cocos2d,
-                       JavaScript.Cocos2d.Types,
-                       JavaScript.Cocos2d.EventListener,
+                       JavaScript.Cocos2d.Event,
                        JavaScript.Cocos2d.Schedule,
                        JavaScript.Cocos2d.Node,
                        JavaScript.Cocos2d.Layer,
-                       JavaScript.Cocos2d.Scene
+                       JavaScript.Cocos2d.Sprite,
+                       JavaScript.Cocos2d.Scene,
+                       JavaScript.Cocos2d.Label
   
   -- Modules included in this library but not exported.
   -- other-modules:       
