@@ -55,7 +55,10 @@ library
                        JavaScript.Cocos2d.Layer,
                        JavaScript.Cocos2d.Sprite,
                        JavaScript.Cocos2d.Scene,
-                       JavaScript.Cocos2d.Label
+                       JavaScript.Cocos2d.Label,
+                       JavaScript.Cocos2d.Types,
+                       JavaScript.Cocos2d.Async,
+                       JavaScript.Cocos2d.Utils
   
   -- Modules included in this library but not exported.
   -- other-modules:       

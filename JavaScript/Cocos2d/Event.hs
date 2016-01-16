@@ -3,7 +3,49 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
-module JavaScript.Cocos2d.Event where
+module JavaScript.Cocos2d.Event
+    (
+      IsEventListener
+    , EventListener
+    , clone
+    , isEnabled
+    , setEnabled
+    , addListener
+    , addListener'
+    , removeListener
+    , Touch(Touch)
+    , location
+    , previousLocation
+    , delta
+    , startLocation
+    , createTouchAllAtOnceEventListener
+    , TouchAllAtOnceEventListener
+    , setOnTouchesBegan
+    , setOnTouchesEnded
+    , setOnTouchesMoved
+    , setOnTouchesCancelled
+    , MouseEvent
+    , MouseEventListener
+    , createMouseEventListener
+    , setOnMouseDown
+    , setOnMouseUp
+    , setOnMouseMove
+    , setOnMouseScroll
+    , Key(..)
+    , KeyboardEventListener
+    , createKeyboardEventListener
+    , setOnKeyPressed
+    , setOnKeyReleased
+    , Acceleration(Acceleration)
+    , vec
+    , time
+    , AccelerationEventListener
+    , createAccelerationEventListener
+    , setOnAccelerationEvent
+    , FocusEventListener
+    , createFocusEventListener
+    , setOnFocusChanged
+    ) where
 
 import Data.Time.Clock
 import Linear
