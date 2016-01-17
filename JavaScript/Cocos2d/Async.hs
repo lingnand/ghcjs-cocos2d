@@ -25,4 +25,4 @@ foreign import javascript unsafe "{}" cc_createLoadOption :: IO LoadOption
 foreign import javascript unsafe "$1.trigger = function(r, c, t) { $2(c, t); }" cc_setLoadTrigger :: LoadOption -> Callback a -> IO ()
 -- XXX: ignore the error for now
 foreign import javascript unsafe "$1.cb = $2" cc_setLoadFinish :: LoadOption -> Callback a -> IO ()
-foreign import javascript unsafe "cc.loader.load($1, $2)" cc_load :: JSVal -> LoadOption -> IO ()
+foreign import javascript unsafe "cc.loader.load($1, function() { if ($2.trigger) { $2.trigger.apply(this, arguments); } }, function() { if ($2.cb) { $2.cb.apply(this, arguments); } })" cc_load :: JSVal -> LoadOption -> IO ()
