@@ -71,7 +71,7 @@ library
   build-depends:       base >=4.8 && <4.9,
                        ghcjs-base,
                        transformers,
-                       linear,
+                       diagrams-lib,
                        time,
                        aeson,
                        text,

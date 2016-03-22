@@ -1,7 +1,7 @@
 {-# LANGUAGE JavaScriptFFI #-}
 module JavaScript.Cocos2d where
 
-import Linear
+import Diagrams
 import GHCJS.Types
 import GHCJS.Marshal
 import Control.Monad

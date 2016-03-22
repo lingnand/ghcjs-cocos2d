@@ -52,7 +52,7 @@ module JavaScript.Cocos2d.Node
     , convertToWorldSpace
     ) where
 
-import Linear
+import Diagrams (P2)
 import Data.Word
 import Data.Colour
 import Control.Monad.IO.Class
@@ -199,10 +199,10 @@ getOpacity = liftIO . ((/255) . fromIntegral <$>) . cc_getOpacity . toNode
 getCascadeOpacity :: (IsNode n, MonadIO m) => n -> m Bool
 getCascadeOpacity = liftIO . cc_getCascadeOpacity . toNode
 
-convertToNodeSpace :: (IsNode n, MonadIO m) => n -> V2 Double -> m (V2 Double)
+convertToNodeSpace :: (IsNode n, MonadIO m) => n -> P2 Double -> m (P2 Double)
 convertToNodeSpace n p = liftIO $ fromJSValUnchecked =<< cc_convertToNodeSpace (toNode n) =<< toJSVal p
 
-convertToWorldSpace :: (IsNode n, MonadIO m) => n -> V2 Double -> m (V2 Double)
+convertToWorldSpace :: (IsNode n, MonadIO m) => n -> P2 Double -> m (P2 Double)
 convertToWorldSpace n p = liftIO $ fromJSValUnchecked =<< cc_convertToWorldSpace (toNode n) =<< toJSVal p
 
 foreign import javascript unsafe "new cc.Node()"  cc_createNode :: IO Node

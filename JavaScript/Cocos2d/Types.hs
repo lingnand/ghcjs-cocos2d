@@ -8,7 +8,7 @@ import qualified Data.Text as T
 import Data.Word
 import Data.Colour as C
 import Data.Colour.SRGB
-import Linear
+import Diagrams
 import GHCJS.Types
 import GHCJS.Marshal
 import GHCJS.Marshal.Pure
@@ -31,12 +31,20 @@ foreign import javascript unsafe "$1.a" cc_getA :: JSVal -> IO Word8
 foreign import javascript unsafe "cc.color($1, $2, $3, $4)" cc_color :: Word8 -> Word8 -> Word8 -> Word8 -> IO JSVal
 
 ----- Types
--- V2 Double <-> cc.Point
+-- P2 Double <-> cc.Point
+instance FromJSVal (P2 Double) where
+    fromJSVal v = Just <$> ((^&) <$> cc_getX v <*> cc_getY v)
+
 instance FromJSVal (V2 Double) where
-    fromJSVal v = Just <$> (V2 <$> cc_getX v <*> cc_getY v)
+    fromJSVal v = Just <$> ((^&) <$> cc_getX v <*> cc_getY v)
+
+instance ToJSVal (P2 Double) where
+    toJSVal p = cc_p x y
+      where (x, y) = unp2 p
 
 instance ToJSVal (V2 Double) where
-    toJSVal (V2 x y) = cc_p x y
+    toJSVal p = cc_p x y
+      where (x, y) = unr2 p
 
 -- NominalDiffTime <> float (in seconds)
 instance FromJSVal NominalDiffTime where

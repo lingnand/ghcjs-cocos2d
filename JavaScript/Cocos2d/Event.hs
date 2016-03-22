@@ -48,7 +48,8 @@ module JavaScript.Cocos2d.Event
     ) where
 
 import Data.Time.Clock
-import Linear
+import Diagrams (P2, V2)
+import Diagrams.ThreeD (V3(..))
 import Control.Monad.IO.Class
 import Control.Lens
 import Control.Monad
@@ -103,10 +104,10 @@ removeListener = liftIO . cc_removeListener . toEventListener
 -- haskell
 
 -- Touch
-data Touch = Touch { _location :: V2 Double
-                   , _previousLocation :: V2 Double
+data Touch = Touch { _location :: P2 Double
+                   , _previousLocation :: P2 Double
                    , _delta :: V2 Double
-                   , _startLocation :: V2 Double
+                   , _startLocation :: P2 Double
                    } deriving (Show, Eq, Ord)
 makeLenses ''Touch
 
