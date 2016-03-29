@@ -14,10 +14,10 @@ module JavaScript.Cocos2d.Event
     , addListener'
     , removeListener
     , Touch(Touch)
-    , location
-    , previousLocation
+    , loc
+    , previousLoc
     , delta
-    , startLocation
+    , startLoc
     , createTouchAllAtOnceEventListener
     , TouchAllAtOnceEventListener
     , setOnTouchesBegan
@@ -104,10 +104,10 @@ removeListener = liftIO . cc_removeListener . toEventListener
 -- haskell
 
 -- Touch
-data Touch = Touch { _location :: P2 Double
-                   , _previousLocation :: P2 Double
+data Touch = Touch { _loc :: P2 Double
+                   , _previousLoc :: P2 Double
                    , _delta :: V2 Double
-                   , _startLocation :: P2 Double
+                   , _startLoc :: P2 Double
                    } deriving (Show, Eq, Ord)
 makeLenses ''Touch
 

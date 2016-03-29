@@ -21,8 +21,7 @@ module JavaScript.Cocos2d.Node
     , setSkewX
     , setSkewY
     , setZIndex
-    , setRotationX
-    , setRotationY
+    , setRotation
     , setScaleX
     , setScaleY
     , setVisible
@@ -39,8 +38,7 @@ module JavaScript.Cocos2d.Node
     , getSkewX
     , getSkewY
     , getZIndex
-    , getRotationX
-    , getRotationY
+    , getRotation
     , getScaleX
     , getScaleY
     , getVisible
@@ -118,11 +116,8 @@ setSkewY n = liftIO . cc_setSkewY (toNode n)
 setZIndex :: (IsNode n, MonadIO m) => n -> Int -> m ()
 setZIndex n = liftIO . cc_setZIndex (toNode n)
 
-setRotationX :: (IsNode n, MonadIO m) => n -> Double -> m ()
-setRotationX n = liftIO . cc_setRotationX (toNode n)
-
-setRotationY :: (IsNode n, MonadIO m) => n -> Double -> m ()
-setRotationY n = liftIO . cc_setRotationY (toNode n)
+setRotation :: (IsNode n, MonadIO m) => n -> Double -> m ()
+setRotation n = liftIO . cc_setRotation (toNode n)
 
 setScaleX :: (IsNode n, MonadIO m) => n -> Double -> m ()
 setScaleX n = liftIO . cc_setScaleX (toNode n)
@@ -172,11 +167,8 @@ getSkewY = liftIO . cc_getSkewY . toNode
 getZIndex :: (IsNode n, MonadIO m) => n -> m Int
 getZIndex = liftIO . cc_getZIndex . toNode
 
-getRotationX :: (IsNode n, MonadIO m) => n -> m Double
-getRotationX = liftIO . cc_getRotationX . toNode
-
-getRotationY :: (IsNode n, MonadIO m) => n -> m Double
-getRotationY = liftIO . cc_getRotationY . toNode
+getRotation :: (IsNode n, MonadIO m) => n -> m Double
+getRotation = liftIO . cc_getRotation . toNode
 
 getScaleX :: (IsNode n, MonadIO m) => n -> m Double
 getScaleX = liftIO . cc_getScaleX . toNode
@@ -221,8 +213,7 @@ foreign import javascript unsafe "if ($1.anchorY !== $2) {$1.anchorY = $2}" cc_s
 foreign import javascript unsafe "if ($1.skewX !== $2) {$1.skewX = $2}" cc_setSkewX :: Node -> Double -> IO ()
 foreign import javascript unsafe "if ($1.skewY !== $2) {$1.skewY = $2}" cc_setSkewY :: Node -> Double -> IO ()
 foreign import javascript unsafe "if ($1.zIndex !== $2) {$1.zIndex = $2}" cc_setZIndex :: Node -> Int -> IO ()
-foreign import javascript unsafe "if ($1.rotationX !== $2) {$1.rotationX = $2}" cc_setRotationX :: Node -> Double -> IO ()
-foreign import javascript unsafe "if ($1.rotationY !== $2) {$1.rotationY = $2}" cc_setRotationY :: Node -> Double -> IO ()
+foreign import javascript unsafe "if ($1.rotation !== $2) {$1.rotation = $2}" cc_setRotation :: Node -> Double -> IO ()
 foreign import javascript unsafe "if ($1.scaleX !== $2) {$1.scaleX = $2}" cc_setScaleX :: Node -> Double -> IO ()
 foreign import javascript unsafe "if ($1.scaleY !== $2) {$1.scaleY = $2}" cc_setScaleY :: Node -> Double -> IO ()
 foreign import javascript unsafe "if ($1.visible !== $2) {$1.visible = $2}" cc_setVisible :: Node -> Bool -> IO ()
@@ -239,8 +230,7 @@ foreign import javascript unsafe "$1.anchorY" cc_getAnchorY :: Node -> IO Double
 foreign import javascript unsafe "$1.skewX" cc_getSkewX :: Node -> IO Double
 foreign import javascript unsafe "$1.skewY" cc_getSkewY :: Node -> IO Double
 foreign import javascript unsafe "$1.zIndex" cc_getZIndex :: Node -> IO Int
-foreign import javascript unsafe "$1.rotationX" cc_getRotationX :: Node -> IO Double
-foreign import javascript unsafe "$1.rotationY" cc_getRotationY :: Node -> IO Double
+foreign import javascript unsafe "$1.rotation" cc_getRotation :: Node -> IO Double
 foreign import javascript unsafe "$1.scaleX" cc_getScaleX :: Node -> IO Double
 foreign import javascript unsafe "$1.scaleY" cc_getScaleY :: Node -> IO Double
 foreign import javascript unsafe "$1.visible" cc_getVisible :: Node -> IO Bool
