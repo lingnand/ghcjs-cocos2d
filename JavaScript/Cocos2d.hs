@@ -53,7 +53,7 @@ runScene :: MonadIO m => Scene -> m ()
 runScene = liftIO . cc_runScene
 
 --- EGLView
--- | Mapping from 0 - 4
+-- | NOTE: Mapping from 0 - 4
 data ResolutionPolicy = ExactFit | NoBorder | ShowAll | FixedHeight | FixedWidth
         deriving (Bounded, Enum, Show, Eq, Ord, Read)
 

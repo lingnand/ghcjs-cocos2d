@@ -10,6 +10,7 @@ module JavaScript.Cocos2d.Event
     , clone
     , isEnabled
     , setEnabled
+    , checkAvailable
     , addListener
     , addListener'
     , removeListener
@@ -36,23 +37,22 @@ module JavaScript.Cocos2d.Event
     , createKeyboardEventListener
     , setOnKeyPressed
     , setOnKeyReleased
-    , Acceleration(Acceleration)
-    , vec
+    , Accel(Accel)
     , time
-    , AccelerationEventListener
-    , createAccelerationEventListener
-    , setOnAccelerationEvent
+    , AccelEventListener
+    , createAccelEventListener
     , FocusEventListener
     , createFocusEventListener
     , setOnFocusChanged
     ) where
 
 import Data.Time.Clock
-import Diagrams (P2, V2)
-import Diagrams.ThreeD (V3(..))
+import Diagrams (P2, V2, R1(..), R2(..))
+import Diagrams.ThreeD (V3(..), R3(..))
 import Control.Monad.IO.Class
 import Control.Lens
 import Control.Monad
+import Control.Exception
 import GHCJS.Types
 import GHCJS.Marshal
 import GHCJS.Marshal.Pure
@@ -74,6 +74,7 @@ instance IsEventListener EventListener where
 foreign import javascript unsafe "$1.clone()" cc_clone :: EventListener -> IO EventListener
 foreign import javascript unsafe "$1.isEnabled()" cc_isEnabled :: EventListener -> IO Bool
 foreign import javascript unsafe "$1.setEnabled($2)" cc_setEnabled :: EventListener -> Bool -> IO ()
+foreign import javascript safe "$1.checkAvailable()" cc_checkAvailable :: EventListener -> IO Bool
 foreign import javascript unsafe "cc.eventManager.addListener($1, $2)" cc_addListener :: EventListener -> JSVal -> IO ()
 foreign import javascript unsafe "cc.eventManager.removeListener($1)" cc_removeListener :: EventListener -> IO ()
 
@@ -85,6 +86,9 @@ isEnabled = liftIO . cc_isEnabled . toEventListener
 
 setEnabled :: (IsEventListener l, MonadIO m) => l -> Bool -> m ()
 setEnabled l = liftIO . cc_setEnabled (toEventListener l)
+
+checkAvailable :: (IsEventListener l, MonadIO m) => l -> m Bool
+checkAvailable l = liftIO $ cc_checkAvailable (toEventListener l) `catch` (\(JSException _ _) -> return False)
 
 -- | add listener at scene graph priority - all listeners at scene graph
 -- priority will be called according to their bound nodes in front to back
@@ -552,41 +556,47 @@ setOnKeyPressed l = liftIO . convCallback1 (cc_setOnKeyPressed l)
 setOnKeyReleased :: MonadIO m => KeyboardEventListener -> (Key -> IO ()) -> m (IO ())
 setOnKeyReleased l = liftIO . convCallback1 (cc_setOnKeyReleased l)
 
--- Acceleration <> cc.Acceleration
-data Acceleration = Acceleration { _vec  :: V3 Double
-                                 , _time :: UTCTime }
-makeLenses ''Acceleration
+-- Accel <> cc.Accel
+data Accel a = Accel { _accToV3  :: V3 a
+                     , _time :: UTCTime } deriving (Show, Read)
+makeLenses ''Accel
+
+instance R1 Accel where
+    _x = accToV3 . _x
+
+instance R2 Accel where
+    _y = accToV3 . _y
+    _xy = accToV3 . _xy
+
+instance R3 Accel where
+    _z = accToV3 . _z
+    _xyz = accToV3
 
 foreign import javascript unsafe "$1.x" cc_getX :: JSVal -> IO Double
 foreign import javascript unsafe "$1.y" cc_getY :: JSVal -> IO Double
 foreign import javascript unsafe "$1.z" cc_getZ :: JSVal -> IO Double
 foreign import javascript unsafe "$1.timestamp" cc_getTimestamp :: JSVal -> IO JSVal
-foreign import javascript unsafe "new cc.Acceleration($1, $2, $3, $4)" cc_createAcceleration :: Double -> Double -> Double -> JSVal -> IO JSVal
+foreign import javascript unsafe "new cc.Accel($1, $2, $3, $4)" cc_createAccel :: Double -> Double -> Double -> JSVal -> IO JSVal
 
-instance FromJSVal Acceleration where
+instance FromJSVal (Accel Double) where
     fromJSVal v = do
         vec <- V3 <$> cc_getX v <*> cc_getY v <*> cc_getZ v
         t <- fromJSVal =<< cc_getTimestamp v
-        return $ Acceleration vec <$> t
+        return $ Accel vec <$> t
 
-instance ToJSVal Acceleration where
-    toJSVal (Acceleration (V3 x y z) t) = cc_createAcceleration x y z =<< toJSVal t
+instance ToJSVal (Accel Double) where
+    toJSVal (Accel (V3 x y z) t) = cc_createAccel x y z =<< toJSVal t
 
-newtype AccelerationEventListener = AccelerationEventListener JSVal
-instance IsEventListener AccelerationEventListener where
-    toEventListener (AccelerationEventListener a) = EventListener a
-    fromEventListener (EventListener a) = AccelerationEventListener a
+newtype AccelEventListener = AccelEventListener JSVal
+instance IsEventListener AccelEventListener where
+    toEventListener (AccelEventListener a) = EventListener a
+    fromEventListener (EventListener a) = AccelEventListener a
 
-foreign import javascript unsafe "cc.EventListener.create({ event: cc.EventListener.ACCELERATION })" cc_createAccelerationEventListener :: IO AccelerationEventListener
-createAccelerationEventListener :: MonadIO m => m AccelerationEventListener
-createAccelerationEventListener = liftIO cc_createAccelerationEventListener
-
-foreign import javascript unsafe "$1.onAccelerationEvent = $2" cc_setOnAccelerationEvent :: AccelerationEventListener -> Callback a -> IO ()
-
--- XXX: these callbacks ignore the second AccelerationEvent argument passed into
+foreign import javascript unsafe "cc.EventListener.create({ event: cc.EventListener.ACCELERATION, callback: $1})" cc_createAccelEventListener :: Callback a -> IO AccelEventListener
+-- XXX: these callbacks ignore the second AccelEvent argument passed into
 -- the callback - since they are not really useful
-setOnAccelerationEvent :: MonadIO m => AccelerationEventListener -> (Acceleration -> IO ()) -> m (IO ())
-setOnAccelerationEvent l = liftIO . convCallback1 (cc_setOnAccelerationEvent l)
+createAccelEventListener :: MonadIO m => (Accel Double -> IO ()) -> m (AccelEventListener, IO ())
+createAccelEventListener = liftIO . convCallback1WithReturn cc_createAccelEventListener
 
 newtype FocusEventListener = FocusEventListener JSVal
 instance IsEventListener FocusEventListener where

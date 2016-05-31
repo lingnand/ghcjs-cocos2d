@@ -49,4 +49,8 @@ enumFromJSValByInt = flip catch handle . fmap Just . evaluate . toEnum . pFromJS
   where handle :: ErrorCall -> IO (Maybe a)
         handle e = print e >> return Nothing
 
+jsNullOrUndefinedMaybe :: (JSVal -> a) -> JSVal -> Maybe a
+jsNullOrUndefinedMaybe _ r | isNull r || isUndefined r = Nothing
+jsNullOrUndefinedMaybe f r = Just (f r)
+
 foreign import javascript unsafe "$1===$2" js_eq :: JSVal -> JSVal -> Bool
