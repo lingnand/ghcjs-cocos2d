@@ -57,6 +57,7 @@ library
                        JavaScript.Cocos2d.Sprite,
                        JavaScript.Cocos2d.Scene,
                        JavaScript.Cocos2d.Label,
+                       JavaScript.Cocos2d.Armature,
                        JavaScript.Cocos2d.Types,
                        JavaScript.Cocos2d.Async,
                        JavaScript.Cocos2d.CCS,

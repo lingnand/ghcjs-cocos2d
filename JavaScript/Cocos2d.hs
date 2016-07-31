@@ -13,11 +13,11 @@ import JavaScript.Cocos2d.Utils
 data OS = IOS | Android | Windows | Marmalade | Linux | Bada | Blackberry | OSX | WP8 | WinRT
         deriving (Bounded, Enum, Show, Eq, Ord, Read)
 
-getOS :: IO (Maybe OS)
-getOS = cc_os >>= fromJSVal
+getOS :: MonadIO m => m (Maybe OS)
+getOS = liftIO $ cc_os >>= fromJSVal
 
-getWinSize :: IO (V2 Double)
-getWinSize = V2 <$> cc_getWinWidth <*> cc_getWinHeight
+getWinSize :: MonadIO m => m (V2 Double)
+getWinSize = liftIO $ V2 <$> cc_getWinWidth <*> cc_getWinHeight
 
 instance ToJSVal OS where
     toJSVal IOS = cc_OS_IOS

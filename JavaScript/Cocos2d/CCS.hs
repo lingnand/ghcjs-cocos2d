@@ -25,9 +25,14 @@ module JavaScript.Cocos2d.CCS
   , setOnTextFieldEvent
   , loadCCS
   , loadCCS'
+  , ArmatureFileInfoAsyncListener
+  , createArmatureFileInfoAsyncListener
+  , setOnArmatureFileInfoAsyncProgress
+  , addArmatureFileInfosAsync
   ) where
 
 import Diagrams (P2)
+import Control.Monad
 import Control.Monad.IO.Class
 import GHCJS.Types
 import GHCJS.Marshal
@@ -182,6 +187,20 @@ unCCS :: (IsNode n, PFromJSVal n) => JSVal -> IO (Maybe n, Maybe Action)
 unCCS loaded = (,) <$> (jsNullOrUndefinedMaybe pFromJSVal <$> ccs_getNode loaded)
                    <*> (jsNullOrUndefinedMaybe pFromJSVal <$> ccs_getAction loaded)
 
+
+newtype ArmatureFileInfoAsyncListener = ArmatureFileInfoAsyncListener JSVal
+
+createArmatureFileInfoAsyncListener :: MonadIO m => m ArmatureFileInfoAsyncListener
+createArmatureFileInfoAsyncListener = liftIO ccs_createArmatureFileInfoAsyncListener
+
+setOnArmatureFileInfoAsyncProgress :: MonadIO m => ArmatureFileInfoAsyncListener -> (Double -> IO ()) -> m (IO ())
+setOnArmatureFileInfoAsyncProgress l = liftIO . convCallback1 (ccs_setOnArmatureFileInfoAsyncProgress l)
+
+-- Armature loading -- using async loading
+addArmatureFileInfosAsync :: (MonadIO m) => [String] -- ^ file paths to json files to import
+                          -> ArmatureFileInfoAsyncListener -> m ()
+addArmatureFileInfosAsync files listener = liftIO $ forM_ files $ \f -> ccs_addArmatureFileInfoAsync (pToJSVal f) listener
+
 foreign import javascript unsafe "$1.addTouchEventListener($2)" cc_setOnWidgetTouchEvent :: Widget -> Callback a -> IO ()
 foreign import javascript unsafe "$1.getTouchBeganPosition()" cc_widget_getTouchBeganPosition :: Widget -> IO JSVal
 foreign import javascript unsafe "$1.getTouchMovePosition()" cc_widget_getTouchMovePosition :: Widget -> IO JSVal
@@ -192,4 +211,6 @@ foreign import javascript unsafe "ccs.load($1, $2)" ccs_load' :: JSVal -> JSVal 
 foreign import javascript unsafe "ccs.load($1)" ccs_load :: JSVal -> IO JSVal
 foreign import javascript unsafe "$1.node" ccs_getNode :: JSVal -> IO JSVal
 foreign import javascript unsafe "$1.action" ccs_getAction :: JSVal -> IO JSVal
-
+foreign import javascript unsafe "ccs.armatureDataManager.addArmatureFileInfoAsync($1, function(percent) { if ($2.progress) { $2.progress(percent); } }, $2)" ccs_addArmatureFileInfoAsync :: JSVal -> ArmatureFileInfoAsyncListener -> IO ()
+foreign import javascript unsafe "{}" ccs_createArmatureFileInfoAsyncListener :: IO ArmatureFileInfoAsyncListener
+foreign import javascript unsafe "$1.progress = $2" ccs_setOnArmatureFileInfoAsyncProgress :: ArmatureFileInfoAsyncListener -> Callback a -> IO ()
